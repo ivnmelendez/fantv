@@ -94,15 +94,16 @@
 
                             <TextView
                                 android:id="@+id/tv_rated"
-                                android:textSize="@dimen/font_14"
-                                android:textStyle="bold"
-                                android:textColor="@color/black"
-                                android:background="@color/white"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
+                                android:layout_marginEnd="@dimen/margin_3"
+                                android:background="@color/white"
                                 android:paddingStart="@dimen/margin_3"
                                 android:paddingEnd="@dimen/margin_3"
-                                android:layout_marginEnd="@dimen/margin_3" />
+                                android:textColor="@color/black"
+                                android:textSize="@dimen/font_14"
+                                android:textStyle="bold"
+                                android:visibility="gone" />
 
                             <TextView
                                 android:id="@+id/tv_duration"
@@ -223,6 +224,9 @@
         </RelativeLayout>
     </LinearLayout>
 
-    <include android:id="@+id/loadingLayout" layout="@layout/layout_loading" />
+    <include
+        android:id="@+id/loadingLayout"
+        layout="@layout/layout_loading"
+        android:visibility="gone" />
 
 </RelativeLayout>

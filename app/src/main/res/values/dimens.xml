@@ -26,18 +26,18 @@
     <dimen name="poster_width_expanded">@dimen/_182sdp</dimen>
 
     <!-- Side menu -->
-    <dimen name="main_menu_view_width_closed">@dimen/_34sdp</dimen>
-    <dimen name="main_menu_view_width_open">@dimen/_125sdp</dimen>
-    <dimen name="main_menu_item_height">@dimen/_40sdp</dimen>
-    <dimen name="main_menu_item_icon_height">@dimen/_22sdp</dimen>
-    <dimen name="main_menu_item_icon_rlay_height">@dimen/_30sdp</dimen>
-    <dimen name="main_menu_item_icon_rlay_width">@dimen/_34sdp</dimen>
+    <dimen name="main_menu_view_width_closed">@dimen/_28sdp</dimen>
+    <dimen name="main_menu_view_width_open">@dimen/_119sdp</dimen>
+    <dimen name="main_menu_item_height">@dimen/_36sdp</dimen>
+    <dimen name="main_menu_item_icon_height">@dimen/_16sdp</dimen>
+    <dimen name="main_menu_item_icon_rlay_height">@dimen/_26sdp</dimen>
+    <dimen name="main_menu_item_icon_rlay_width">@dimen/_28sdp</dimen>
     <dimen name="main_menu_item_title_width">@dimen/_91sdp</dimen>
 
     <!-- Hero/Featured banner -->
-    <dimen name="main_upper_view_height">@dimen/_181sdp</dimen>
-    <dimen name="main_upper_view_height_expanded">@dimen/_181sdp</dimen>
-    <dimen name="main_upper_view_horizontal_margin">@dimen/_10sdp</dimen>
+    <dimen name="main_upper_view_height">@dimen/_130sdp</dimen>
+    <dimen name="main_upper_view_height_expanded">@dimen/_130sdp</dimen>
+    <dimen name="main_upper_view_horizontal_margin">0dp</dimen>
     <dimen name="main_upper_view_margin_bottom">@dimen/_8sdp</dimen>
     <dimen name="main_upper_view_description_width">@dimen/_226sdp</dimen>
     <dimen name="main_featuring_rating_height">@dimen/_15sdp</dimen>
@@ -65,4 +65,6 @@
     <dimen name="login_field_width">@dimen/_250sdp</dimen>
     <dimen name="login_button_height">@dimen/_36sdp</dimen>
     <dimen name="login_button_width">@dimen/_150sdp</dimen>
+    <dimen name="row_peek_width">@dimen/_10sdp</dimen>
+    <dimen name="row_title_start">@dimen/_65sdp</dimen>
 </resources>

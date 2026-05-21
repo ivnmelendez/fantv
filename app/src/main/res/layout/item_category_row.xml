@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
     android:layout_width="match_parent"
-    android:layout_height="@dimen/main_cards_row_total_height"
-    android:paddingStart="@dimen/margin_6">
+    android:layout_height="@dimen/main_cards_row_total_height">
 
     <TextView
         android:id="@+id/tv_row_title"
@@ -15,11 +15,13 @@
         android:gravity="center_vertical"
         android:text="" />
 
-    <androidx.recyclerview.widget.RecyclerView
+    <androidx.leanback.widget.HorizontalGridView
         android:id="@+id/rv_row"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
-        android:orientation="horizontal" />
+        android:focusable="true"
+        android:descendantFocusability="afterDescendants"
+        app:numberOfRows="1" />
 
 </LinearLayout>

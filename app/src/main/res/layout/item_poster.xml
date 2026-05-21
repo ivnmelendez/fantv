@@ -29,6 +29,19 @@
             android:scaleType="fitXY"
             android:layout_alignParentBottom="true" />
 
+        <!-- Quality badge for pre-release content (HDTS, DCPRIP, etc.) -->
+        <TextView
+            android:id="@+id/tv_quality"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/_14sdp"
+            android:layout_alignParentBottom="true"
+            android:background="@drawable/shape_quality_badge"
+            android:gravity="center"
+            android:textColor="@color/white"
+            android:textSize="@dimen/font_12"
+            android:textStyle="bold"
+            android:visibility="gone" />
+
     </RelativeLayout>
 
 </androidx.leanback.widget.BaseCardView>

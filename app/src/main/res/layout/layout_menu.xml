@@ -6,7 +6,7 @@
 
     <!-- Background: solid black matching app background -->
     <RelativeLayout
-        android:background="@color/app_color_1"
+        android:background="@color/sidebar_background"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
 

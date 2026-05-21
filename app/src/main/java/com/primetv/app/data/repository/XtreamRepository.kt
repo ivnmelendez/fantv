@@ -84,6 +84,17 @@ class XtreamRepository(private val prefs: Prefs, private val db: AppDatabase) {
         return cached.map { it.toModel() }
     }
 
+    suspend fun fetchLiveCategoriesDirect(): List<Category> =
+        api.getLiveCategories(apiUrl(), user(), pass())
+
+    suspend fun fetchLiveStreamsDirect(categoryId: String): List<LiveStream> =
+        api.getLiveStreams(apiUrl(), user(), pass(), categoryId = categoryId)
+
+    suspend fun refreshLiveCategory(categoryId: String, streams: List<LiveStream>) {
+        dao.deleteLiveStreamsByCategory(categoryId)
+        dao.insertLiveStreams(streams.map { LiveStreamEntity.from(it) })
+    }
+
     // ── Stream URLs ───────────────────────────────────────────────────────
 
     fun buildVodUrl(streamId: Int, ext: String) =

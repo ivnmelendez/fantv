@@ -75,4 +75,7 @@ interface ContentDao {
 
     @Query("DELETE FROM live_streams")
     suspend fun deleteLiveStreams()
+
+    @Query("DELETE FROM live_streams WHERE categoryId = :catId")
+    suspend fun deleteLiveStreamsByCategory(catId: String)
 }

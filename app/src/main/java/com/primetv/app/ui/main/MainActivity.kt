@@ -27,6 +27,7 @@ class MainActivity : AppCompatActivity() {
     private val prefs get() = App.instance.prefs
 
     private var featuredItem: VodStream? = null
+    private var rowsAdapter: RowsAdapter? = null
 
     // Menu IDs
     companion object {
@@ -89,6 +90,9 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun observeState() {
+        viewModel.sportsRefreshed.observe(this) { sports ->
+            rowsAdapter?.updateRow("home_sports", sports)
+        }
         viewModel.state.observe(this) { state ->
             when (state) {
                 is MainState.Loading -> showLoading(true)
@@ -97,15 +101,18 @@ class MainActivity : AppCompatActivity() {
                     featuredItem = state.featuredItem
                     bindFeatured(state.featuredItem)
                     binding.rvRows.apply {
+                        itemAnimator = null
                         layoutManager = LinearLayoutManager(this@MainActivity)
-                        adapter = RowsAdapter(
+                        rowsAdapter = RowsAdapter(
                             rows = state.rows,
                             onItemClick = { item -> onItemClick(item) },
                             onItemFocus = { item ->
                                 bindFeatured(item)
                                 viewModel.loadFeaturedInfo(item.streamId, item.name, item.containerExtension == "series")
-                            }
+                            },
+                            onRefreshRow = { viewModel.refreshSportsRow() }
                         )
+                        adapter = rowsAdapter
                     }
                     state.featuredItem?.let { item ->
                         viewModel.loadFeaturedInfo(item.streamId, item.name, item.containerExtension == "series")
@@ -140,11 +147,13 @@ class MainActivity : AppCompatActivity() {
     private fun bindFeatured(item: VodStream?) {
         item ?: return
         binding.cardInfo.visibility = View.VISIBLE
-        Glide.with(this).load(item.streamIcon)
-            .transition(DrawableTransitionOptions.withCrossFade(300))
-            .into(binding.ivBackground)
+        Glide.with(this).clear(binding.ivBackground)
+        binding.ivBackground.setImageDrawable(null)
         binding.tvFeatTitle.text = item.name
-        binding.tvRating.text = item.rating ?: "N/A"
+        val isLive = item.containerExtension == "live"
+        binding.tvImdbBadge.visibility = if (isLive) View.GONE else View.VISIBLE
+        binding.tvRating.visibility = if (isLive) View.GONE else View.VISIBLE
+        if (!isLive) binding.tvRating.text = item.rating ?: "N/A"
         binding.tvDescription.visibility = View.GONE
         binding.tvGenre.visibility = View.GONE
         binding.tvSeasons.visibility = View.GONE

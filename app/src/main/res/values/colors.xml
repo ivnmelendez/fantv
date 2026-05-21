@@ -16,6 +16,7 @@
     <color name="transparent">#00ffffff</color>
 
     <!-- Transparency -->
+    <color name="sidebar_background">#D9000000</color>
     <color name="trn_black">#99000000</color>
     <color name="trn_black_detail">#aa000000</color>
     <color name="trn_white">#99ffffff</color>

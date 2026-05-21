@@ -25,7 +25,8 @@ data class FeaturedInfo(
 data class ContentRow(
     val categoryId: String,
     val categoryName: String,
-    val items: List<VodStream>
+    val items: List<VodStream>,
+    val isRefreshable: Boolean = false
 )
 
 sealed class MainState {
@@ -46,6 +47,9 @@ class MainViewModel(private val repo: XtreamRepository) : ViewModel() {
 
     private val _featuredInfo = MutableLiveData<FeaturedInfo?>()
     val featuredInfo: LiveData<FeaturedInfo?> = _featuredInfo
+
+    private val _sportsRefreshed = MutableLiveData<List<VodStream>>()
+    val sportsRefreshed: LiveData<List<VodStream>> = _sportsRefreshed
 
     private val infoCache = HashMap<Int, FeaturedInfo>()
     private val pendingFetches = HashSet<Int>()
@@ -238,7 +242,7 @@ class MainViewModel(private val repo: XtreamRepository) : ViewModel() {
                 val rows = buildList {
                     if (latestMovies.isNotEmpty()) add(ContentRow("home_latest_movies", "Lo último agregado", latestMovies))
                     if (latestSeries.isNotEmpty()) add(ContentRow("home_latest_series", "Series recién actualizadas", latestSeries))
-                    if (sports.isNotEmpty()) add(ContentRow("home_sports", "Eventos Deportivos del día", sports.take(30)))
+                    if (sports.isNotEmpty()) add(ContentRow("home_sports", "Eventos Deportivos del día", sports.take(30), isRefreshable = true))
                 }
 
                 val featured = (latestMovies + latestSeries + sports)
@@ -249,6 +253,12 @@ class MainViewModel(private val repo: XtreamRepository) : ViewModel() {
             } catch (e: Exception) {
                 _state.value = MainState.Error(e.message ?: "Unknown error")
             }
+        }
+    }
+
+    fun refreshSportsRow() {
+        viewModelScope.launch {
+            _sportsRefreshed.value = loadSportsRow(forceApi = true).take(30)
         }
     }
 
@@ -330,8 +340,10 @@ class MainViewModel(private val repo: XtreamRepository) : ViewModel() {
         }
     }
 
-    private suspend fun loadSportsRow(): List<VodStream> {
-        val categories = runCatching { repo.getLiveCategories() }.getOrElse { emptyList() }
+    private suspend fun loadSportsRow(forceApi: Boolean = false): List<VodStream> {
+        val categories = runCatching {
+            if (forceApi) repo.fetchLiveCategoriesDirect() else repo.getLiveCategories()
+        }.getOrElse { emptyList() }
         val sportsCategoryId = categories.firstOrNull { cat ->
             val name = cat.name.orEmpty().lowercase()
             name.contains("sport") ||
@@ -340,7 +352,16 @@ class MainViewModel(private val repo: XtreamRepository) : ViewModel() {
                 name.contains("tv || eventos deportivos del dia")
         }?.id ?: return emptyList()
 
-        return runCatching { repo.getLiveStreams(sportsCategoryId) }.getOrElse { emptyList() }
+        return runCatching {
+            if (forceApi) {
+                val fresh = repo.fetchLiveStreamsDirect(sportsCategoryId)
+                    .filter { it.categoryId == sportsCategoryId }
+                repo.refreshLiveCategory(sportsCategoryId, fresh)
+                fresh
+            } else {
+                repo.getLiveStreams(sportsCategoryId)
+            }
+        }.getOrElse { emptyList() }
             .map { stream ->
                 VodStream(
                     num = stream.num,

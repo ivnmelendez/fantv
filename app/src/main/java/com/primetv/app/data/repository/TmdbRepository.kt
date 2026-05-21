@@ -21,6 +21,14 @@ class TmdbRepository {
         private const val BASE_URL = "https://api.themoviedb.org/3/"
         const val IMAGE_W1280 = "https://image.tmdb.org/t/p/w1280"
 
+        private val QUALITY_REGEX = Regex(
+            """\(?(HDTS|DCPRIP|DC-RIP|HDCAM|HDSCR|DVDScr|CAM|SCR|TS)\)?""",
+            RegexOption.IGNORE_CASE
+        )
+
+        fun extractQualityTag(title: String): String? =
+            QUALITY_REGEX.find(title)?.value?.trim('(', ')', ' ')?.uppercase()
+
         private val MOVIE_GENRES = mapOf(
             28 to "Acción", 12 to "Aventura", 16 to "Animación", 35 to "Comedia",
             80 to "Crimen", 99 to "Documental", 18 to "Drama", 10751 to "Familia",
@@ -87,6 +95,7 @@ class TmdbRepository {
     }
 
     private fun cleanTitle(raw: String) = raw
+        .replace(QUALITY_REGEX, "")
         .replace(Regex("\\(\\d{4}\\)"), "")
         .replace(Regex("\\s{2,}"), " ")
         .trim()
