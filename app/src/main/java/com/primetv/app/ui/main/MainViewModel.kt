@@ -8,6 +8,15 @@ import com.primetv.app.data.model.VodStream
 import com.primetv.app.data.repository.XtreamRepository
 import kotlinx.coroutines.launch
 
+data class FeaturedInfo(
+    val plot: String?,
+    val genre: String?,
+    val cast: String?,
+    val releaseDate: String?,
+    val rating: String?,
+    val seasonCount: Int?
+)
+
 data class ContentRow(
     val categoryId: String,
     val categoryName: String,
@@ -27,6 +36,39 @@ class MainViewModel(private val repo: XtreamRepository) : ViewModel() {
 
     private val _state = MutableLiveData<MainState>(MainState.Loading)
     val state: LiveData<MainState> = _state
+
+    private val _featuredInfo = MutableLiveData<FeaturedInfo?>()
+    val featuredInfo: LiveData<FeaturedInfo?> = _featuredInfo
+
+    fun loadFeaturedInfo(streamId: Int, isSeries: Boolean) {
+        viewModelScope.launch {
+            val info = if (isSeries) {
+                runCatching { repo.getSeriesInfo(streamId) }.getOrNull()?.let { resp ->
+                    val seasons = resp.seasons?.size
+                    FeaturedInfo(
+                        plot = resp.info?.plot,
+                        genre = resp.info?.genre,
+                        cast = resp.info?.cast,
+                        releaseDate = resp.info?.releaseDate,
+                        rating = resp.info?.rating,
+                        seasonCount = seasons
+                    )
+                }
+            } else {
+                runCatching { repo.getVodInfo(streamId) }.getOrNull()?.let { resp ->
+                    FeaturedInfo(
+                        plot = resp.info?.plot ?: resp.info?.description,
+                        genre = resp.info?.genre,
+                        cast = resp.info?.cast ?: resp.info?.actors,
+                        releaseDate = resp.info?.releasedate,
+                        rating = resp.info?.rating?.toString(),
+                        seasonCount = null
+                    )
+                }
+            }
+            _featuredInfo.postValue(info)
+        }
+    }
 
     fun loadHome() {
         _state.value = MainState.Loading

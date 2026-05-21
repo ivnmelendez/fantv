@@ -16,6 +16,7 @@ import com.primetv.app.databinding.ActivityMainBinding
 import com.primetv.app.ui.detail.DetailActivity
 import com.primetv.app.ui.live.LiveActivity
 import com.primetv.app.ui.player.PlayerActivity
+import java.util.Calendar
 
 class MainActivity : AppCompatActivity() {
 
@@ -98,10 +99,37 @@ class MainActivity : AppCompatActivity() {
                         layoutManager = LinearLayoutManager(this@MainActivity)
                         adapter = RowsAdapter(state.rows) { item -> onItemClick(item) }
                     }
+                    state.featuredItem?.let { item ->
+                        viewModel.loadFeaturedInfo(item.streamId, item.containerExtension == "series")
+                    }
                 }
                 is MainState.Error -> {
                     showLoading(false)
                     android.widget.Toast.makeText(this@MainActivity, state.message, android.widget.Toast.LENGTH_LONG).show()
+                }
+            }
+        }
+
+        viewModel.featuredInfo.observe(this) { info ->
+            info ?: return@observe
+            binding.tvDescription.text = info.plot ?: ""
+            binding.tvDescription.visibility = if (info.plot.isNullOrBlank()) View.GONE else View.VISIBLE
+            binding.tvGenre.text = buildString {
+                if (!info.cast.isNullOrBlank()) append("Protagonizada por: ${info.cast}\n")
+                if (!info.genre.isNullOrBlank()) append("Género(s): ${info.genre}")
+            }.trim()
+            binding.tvGenre.visibility = if (info.genre.isNullOrBlank() && info.cast.isNullOrBlank()) View.GONE else View.VISIBLE
+            if (info.seasonCount != null && info.seasonCount > 0) {
+                binding.tvSeasons.text = "${info.seasonCount} Temporada${if (info.seasonCount > 1) "s" else ""}"
+                binding.tvSeasons.visibility = View.VISIBLE
+            }
+            if (!info.rating.isNullOrBlank()) {
+                binding.tvRating.text = info.rating
+            }
+            if (!info.releaseDate.isNullOrBlank()) {
+                val year = info.releaseDate.take(4)
+                if (year.length == 4 && year.all { it.isDigit() }) {
+                    binding.tvYear.text = year
                 }
             }
         }
@@ -112,7 +140,16 @@ class MainActivity : AppCompatActivity() {
         binding.cardInfo.visibility = View.VISIBLE
         Glide.with(this).load(item.streamIcon).into(binding.ivBackground)
         binding.tvFeatTitle.text = item.name
-        binding.tvRating.text = item.rating?.let { "★ $it" } ?: ""
+        binding.tvRating.text = item.rating ?: "N/A"
+        binding.tvDescription.visibility = View.GONE
+        binding.tvGenre.visibility = View.GONE
+        binding.tvSeasons.visibility = View.GONE
+
+        val year = item.added?.toLongOrNull()?.let { ts ->
+            Calendar.getInstance().apply { timeInMillis = ts * 1000L }.get(Calendar.YEAR).toString()
+        }
+        binding.tvYear.text = year ?: ""
+
         binding.btnPlayFeat.setOnClickListener { onItemClick(item) }
     }
 
