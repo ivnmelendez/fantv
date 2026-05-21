@@ -5,6 +5,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.primetv.app.data.model.VodStream
+import com.primetv.app.data.repository.TmdbRepository
 import com.primetv.app.data.repository.XtreamRepository
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
@@ -37,6 +38,8 @@ sealed class MainState {
 
 class MainViewModel(private val repo: XtreamRepository) : ViewModel() {
 
+    private val tmdb = TmdbRepository()
+
     private val _state = MutableLiveData<MainState>(MainState.Loading)
     val state: LiveData<MainState> = _state
 
@@ -47,53 +50,31 @@ class MainViewModel(private val repo: XtreamRepository) : ViewModel() {
     private val pendingFetches = HashSet<Int>()
     private var currentFeaturedId = -1
 
-    fun loadFeaturedInfo(streamId: Int, isSeries: Boolean) {
+    fun loadFeaturedInfo(streamId: Int, name: String, isSeries: Boolean) {
         currentFeaturedId = streamId
-        // Cache hit: synchronous, instant
         infoCache[streamId]?.let { cached ->
             _featuredInfo.value = cached
             return
         }
-        // Already fetching this item — don't duplicate
         if (pendingFetches.contains(streamId)) return
         pendingFetches.add(streamId)
         viewModelScope.launch {
-            delay(350)
+            delay(200)
             if (currentFeaturedId != streamId) {
                 pendingFetches.remove(streamId)
                 return@launch
             }
-            val info = if (isSeries) {
-                try {
-                    repo.getSeriesInfo(streamId).let { resp ->
-                        FeaturedInfo(
-                            plot = resp.info?.plot,
-                            genre = resp.info?.genre,
-                            cast = resp.info?.cast,
-                            releaseDate = resp.info?.releaseDate,
-                            rating = resp.info?.rating,
-                            seasonCount = resp.seasons?.size,
-                            backdropPath = resp.info?.backdropPath?.takeIf { it.isNotBlank() }
-                                ?: resp.info?.cover?.takeIf { it.isNotBlank() }
-                        )
-                    }
-                } catch (_: Exception) { null }
-            } else {
-                try {
-                    repo.getVodInfo(streamId).let { resp ->
-                        FeaturedInfo(
-                            plot = resp.info?.plot ?: resp.info?.description,
-                            genre = resp.info?.genre,
-                            cast = resp.info?.cast ?: resp.info?.actors,
-                            releaseDate = resp.info?.releasedate,
-                            rating = resp.info?.rating?.toString(),
-                            seasonCount = null,
-                            backdropPath = resp.info?.backdropPath?.firstOrNull()?.takeIf { it.isNotBlank() }
-                                ?: resp.info?.coverBig?.takeIf { it.isNotBlank() }
-                                ?: resp.info?.movieImage?.takeIf { it.isNotBlank() }
-                        )
-                    }
-                } catch (_: Exception) { null }
+            val result = tmdb.search(name, isSeries)
+            val info = result?.let {
+                FeaturedInfo(
+                    plot = it.overview,
+                    genre = tmdb.genreNames(it.genreIds, isSeries),
+                    cast = null,
+                    releaseDate = it.releaseDate ?: it.firstAirDate,
+                    rating = it.voteAverage?.let { v -> String.format("%.1f", v) },
+                    seasonCount = null,
+                    backdropPath = tmdb.backdropUrl(it.backdropPath)
+                )
             }
             pendingFetches.remove(streamId)
             info?.let { infoCache[streamId] = it }
