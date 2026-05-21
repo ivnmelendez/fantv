@@ -37,8 +37,7 @@
                         android:layout_height="match_parent"
                         android:scaleType="centerCrop"
                         android:adjustViewBounds="true"
-                        android:layout_alignParentEnd="true"
-                        android:layout_marginStart="@dimen/main_upper_view_description_width" />
+                        android:layout_alignParentEnd="true" />
 
                     <!-- Dark gradient overlay left-side for text legibility -->
                     <View
