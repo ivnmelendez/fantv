@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:focusable="true"
+    android:focusableInTouchMode="true"
+    android:layout_width="match_parent"
+    android:layout_height="@dimen/_30sdp"
+    android:paddingStart="@dimen/margin_6"
+    android:paddingEnd="@dimen/margin_6">
+
+    <TextView
+        android:id="@+id/tv_season_name"
+        android:textSize="@dimen/font_16"
+        android:textColor="@color/white"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_centerVertical="true"
+        android:maxLines="1"
+        android:ellipsize="end" />
+
+</RelativeLayout>

@@ -1,0 +1,3 @@
+-keep class com.primetv.app.data.model.** { *; }
+-keepattributes Signature
+-keepattributes *Annotation*

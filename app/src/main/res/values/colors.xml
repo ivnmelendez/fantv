@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- App brand colors -->
+    <color name="app_color_1">#000000</color>
+    <color name="app_color_2">#ffffff</color>
+    <color name="app_color_3">#bdbdbd</color>
+    <color name="app_color_4">#990000</color>
+
+    <!-- Base -->
+    <color name="black">#000000</color>
+    <color name="white">#ffffff</color>
+    <color name="gray">#848484</color>
+    <color name="lightGray">#646464</color>
+    <color name="darkGray">#4e4d4d</color>
+    <color name="superLightGray">#cccccc</color>
+    <color name="transparent">#00ffffff</color>
+
+    <!-- Transparency -->
+    <color name="trn_black">#99000000</color>
+    <color name="trn_black_detail">#aa000000</color>
+    <color name="trn_white">#99ffffff</color>
+    <color name="trn_whiter">#55ffffff</color>
+
+    <!-- Player -->
+    <color name="player_background_color">#db2a0f</color>
+    <color name="player_color_1">#ff6656</color>
+    <color name="player_color_2">#990000</color>
+    <color name="player_progress_color">#ff7566</color>
+
+    <!-- EPG -->
+    <color name="epg_background">#00000000</color>
+    <color name="epg_channel_layout_background">#80000000</color>
+    <color name="epg_event_layout_background">#80000000</color>
+    <color name="epg_event_layout_background_selected">#50990000</color>
+    <color name="epg_event_layout_text">#ffffff</color>
+    <color name="epg_subtitle">#990000</color>
+    <color name="epg_time_bar">#fff000</color>
+
+    <!-- Live -->
+    <color name="live_grid_color">#66ffffff</color>
+
+    <!-- Material / System -->
+    <color name="colorPrimary">#000000</color>
+    <color name="colorPrimaryDark">#1b1b1b</color>
+    <color name="colorAccent">#990000</color>
+    <color name="sub_action">#bb0000</color>
+
+    <!-- Cards -->
+    <color name="new_selected_background_color">#66ffffff</color>
+    <color name="default_background">#3d3d3d</color>
+</resources>

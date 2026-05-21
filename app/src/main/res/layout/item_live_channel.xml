@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="horizontal"
+    android:gravity="center_vertical"
+    android:focusable="true"
+    android:focusableInTouchMode="true"
+    android:layout_width="@dimen/_160sdp"
+    android:layout_height="@dimen/live_channel_height"
+    android:paddingStart="@dimen/margin_6"
+    android:paddingEnd="@dimen/margin_6">
+
+    <ImageView
+        android:id="@+id/iv_channel_logo"
+        android:layout_width="@dimen/_32sdp"
+        android:layout_height="@dimen/_22sdp"
+        android:scaleType="fitCenter"
+        android:adjustViewBounds="true"
+        android:layout_marginEnd="@dimen/margin_6" />
+
+    <TextView
+        android:id="@+id/tv_channel_name"
+        android:textSize="@dimen/font_14"
+        android:textColor="@color/white"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:maxLines="1"
+        android:ellipsize="end" />
+
+</LinearLayout>

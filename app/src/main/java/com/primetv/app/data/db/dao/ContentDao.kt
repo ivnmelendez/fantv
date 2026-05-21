@@ -1,0 +1,57 @@
+package com.primetv.app.data.db.dao
+
+import androidx.room.*
+import com.primetv.app.data.db.entity.*
+
+@Dao
+interface ContentDao {
+
+    // Categories
+    @Query("SELECT * FROM categories WHERE type = :type")
+    suspend fun getCategories(type: String): List<CategoryEntity>
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertCategories(list: List<CategoryEntity>)
+
+    @Query("DELETE FROM categories WHERE type = :type")
+    suspend fun deleteCategories(type: String)
+
+    // VOD
+    @Query("SELECT * FROM vod_streams")
+    suspend fun getVodStreams(): List<VodStreamEntity>
+
+    @Query("SELECT * FROM vod_streams WHERE categoryId = :catId")
+    suspend fun getVodStreamsByCategory(catId: String): List<VodStreamEntity>
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertVodStreams(list: List<VodStreamEntity>)
+
+    @Query("DELETE FROM vod_streams")
+    suspend fun deleteVodStreams()
+
+    // Series
+    @Query("SELECT * FROM series")
+    suspend fun getSeries(): List<SeriesEntity>
+
+    @Query("SELECT * FROM series WHERE categoryId = :catId")
+    suspend fun getSeriesByCategory(catId: String): List<SeriesEntity>
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertSeries(list: List<SeriesEntity>)
+
+    @Query("DELETE FROM series")
+    suspend fun deleteSeries()
+
+    // Live
+    @Query("SELECT * FROM live_streams")
+    suspend fun getLiveStreams(): List<LiveStreamEntity>
+
+    @Query("SELECT * FROM live_streams WHERE categoryId = :catId")
+    suspend fun getLiveStreamsByCategory(catId: String): List<LiveStreamEntity>
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertLiveStreams(list: List<LiveStreamEntity>)
+
+    @Query("DELETE FROM live_streams")
+    suspend fun deleteLiveStreams()
+}
