@@ -43,35 +43,33 @@ class MainViewModel(private val repo: XtreamRepository) : ViewModel() {
     private val _featuredInfo = MutableLiveData<FeaturedInfo?>()
     val featuredInfo: LiveData<FeaturedInfo?> = _featuredInfo
 
-    private var featuredInfoJob: Job? = null
     private val infoCache = HashMap<Int, FeaturedInfo>()
+    private var currentFeaturedId = -1
 
     fun loadFeaturedInfo(streamId: Int, isSeries: Boolean) {
-        featuredInfoJob?.cancel()
-        // Cache hit: synchronous, no coroutine needed
+        currentFeaturedId = streamId
+        // Cache hit: synchronous, instant
         infoCache[streamId]?.let { cached ->
             _featuredInfo.value = cached
             return
         }
-        featuredInfoJob = viewModelScope.launch {
+        viewModelScope.launch {
             delay(350)
+            if (currentFeaturedId != streamId) return@launch
             val info = if (isSeries) {
                 try {
                     repo.getSeriesInfo(streamId).let { resp ->
-                        val seasons = resp.seasons?.size
                         FeaturedInfo(
                             plot = resp.info?.plot,
                             genre = resp.info?.genre,
                             cast = resp.info?.cast,
                             releaseDate = resp.info?.releaseDate,
                             rating = resp.info?.rating,
-                            seasonCount = seasons,
+                            seasonCount = resp.seasons?.size,
                             backdropPath = resp.info?.backdropPath?.takeIf { it.isNotBlank() }
                                 ?: resp.info?.cover?.takeIf { it.isNotBlank() }
                         )
                     }
-                } catch (e: kotlinx.coroutines.CancellationException) {
-                    throw e
                 } catch (_: Exception) { null }
             } else {
                 try {
@@ -88,12 +86,10 @@ class MainViewModel(private val repo: XtreamRepository) : ViewModel() {
                                 ?: resp.info?.movieImage?.takeIf { it.isNotBlank() }
                         )
                     }
-                } catch (e: kotlinx.coroutines.CancellationException) {
-                    throw e
                 } catch (_: Exception) { null }
             }
             info?.let { infoCache[streamId] = it }
-            _featuredInfo.value = info
+            if (currentFeaturedId == streamId) _featuredInfo.value = info
         }
     }
 
