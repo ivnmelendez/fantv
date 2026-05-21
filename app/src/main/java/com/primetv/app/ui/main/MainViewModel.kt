@@ -37,7 +37,7 @@ sealed class MainState {
     data class Error(val message: String) : MainState()
 }
 
-class MainViewModel(private v?al repo: XtreamRepository) : ViewModel() {
+class MainViewModel(private val repo: XtreamRepository) : ViewModel() {
 
     private val tmdb get() = App.instance.tmdb
 
@@ -232,13 +232,13 @@ class MainViewModel(private v?al repo: XtreamRepository) : ViewModel() {
                     .sortedByDescending { it.added.orEmpty() }
 
                 val sports = loadSportsRow()
-                val latestMovies = movies.take(12)
-                val latestSeries = series.take(12)
+                val latestMovies = movies.take(30)
+                val latestSeries = series.take(30)
 
                 val rows = buildList {
                     if (latestMovies.isNotEmpty()) add(ContentRow("home_latest_movies", "Lo último agregado", latestMovies))
                     if (latestSeries.isNotEmpty()) add(ContentRow("home_latest_series", "Series recién actualizadas", latestSeries))
-                    if (sports.isNotEmpty()) add(ContentRow("home_sports", "Eventos Deportivos del día", sports.take(12)))
+                    if (sports.isNotEmpty()) add(ContentRow("home_sports", "Eventos Deportivos del día", sports.take(30)))
                 }
 
                 val featured = (latestMovies + latestSeries + sports)
@@ -356,6 +356,5 @@ class MainViewModel(private v?al repo: XtreamRepository) : ViewModel() {
                     directSource = null
                 )
             }
-            .take(30)
     }
 }
