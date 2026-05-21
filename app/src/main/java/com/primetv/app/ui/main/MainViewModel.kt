@@ -44,6 +44,7 @@ class MainViewModel(private val repo: XtreamRepository) : ViewModel() {
     val featuredInfo: LiveData<FeaturedInfo?> = _featuredInfo
 
     private val infoCache = HashMap<Int, FeaturedInfo>()
+    private val pendingFetches = HashSet<Int>()
     private var currentFeaturedId = -1
 
     fun loadFeaturedInfo(streamId: Int, isSeries: Boolean) {
@@ -53,9 +54,15 @@ class MainViewModel(private val repo: XtreamRepository) : ViewModel() {
             _featuredInfo.value = cached
             return
         }
+        // Already fetching this item — don't duplicate
+        if (pendingFetches.contains(streamId)) return
+        pendingFetches.add(streamId)
         viewModelScope.launch {
             delay(350)
-            if (currentFeaturedId != streamId) return@launch
+            if (currentFeaturedId != streamId) {
+                pendingFetches.remove(streamId)
+                return@launch
+            }
             val info = if (isSeries) {
                 try {
                     repo.getSeriesInfo(streamId).let { resp ->
@@ -88,6 +95,7 @@ class MainViewModel(private val repo: XtreamRepository) : ViewModel() {
                     }
                 } catch (_: Exception) { null }
             }
+            pendingFetches.remove(streamId)
             info?.let { infoCache[streamId] = it }
             if (currentFeaturedId == streamId) _featuredInfo.value = info
         }
