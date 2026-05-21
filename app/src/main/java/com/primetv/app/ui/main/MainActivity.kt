@@ -101,14 +101,8 @@ class MainActivity : AppCompatActivity() {
                         adapter = RowsAdapter(
                             rows = state.rows,
                             onItemClick = { item -> onItemClick(item) },
-                            onItemFocus = { item ->
-                                bindFeatured(item)
-                                viewModel.loadFeaturedInfo(item.streamId, item.containerExtension == "series")
-                            }
+                            onItemFocus = { item -> bindFeatured(item) }
                         )
-                    }
-                    state.featuredItem?.let { item ->
-                        viewModel.loadFeaturedInfo(item.streamId, item.containerExtension == "series")
                     }
                 }
                 is MainState.Error -> {
@@ -118,34 +112,6 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
-        viewModel.featuredInfo.observe(this) { info ->
-            info ?: return@observe
-            binding.tvDescription.text = info.plot ?: ""
-            binding.tvDescription.visibility = if (info.plot.isNullOrBlank()) View.GONE else View.VISIBLE
-            binding.tvGenre.text = buildString {
-                if (!info.cast.isNullOrBlank()) append("Protagonizada por: ${info.cast}\n")
-                if (!info.genre.isNullOrBlank()) append("Género(s): ${info.genre}")
-            }.trim()
-            binding.tvGenre.visibility = if (info.genre.isNullOrBlank() && info.cast.isNullOrBlank()) View.GONE else View.VISIBLE
-            if (info.seasonCount != null && info.seasonCount > 0) {
-                binding.tvSeasons.text = "${info.seasonCount} Temporada${if (info.seasonCount > 1) "s" else ""}"
-                binding.tvSeasons.visibility = View.VISIBLE
-            }
-            if (!info.rating.isNullOrBlank()) {
-                binding.tvRating.text = info.rating
-            }
-            if (!info.backdropPath.isNullOrBlank()) {
-                Glide.with(this).load(info.backdropPath)
-                    .transition(DrawableTransitionOptions.withCrossFade(400))
-                    .into(binding.ivBackground)
-            }
-            if (!info.releaseDate.isNullOrBlank()) {
-                val year = info.releaseDate.take(4)
-                if (year.length == 4 && year.all { it.isDigit() }) {
-                    binding.tvYear.text = year
-                }
-            }
-        }
     }
 
     private fun bindFeatured(item: VodStream?) {
