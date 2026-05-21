@@ -48,43 +48,52 @@ class MainViewModel(private val repo: XtreamRepository) : ViewModel() {
 
     fun loadFeaturedInfo(streamId: Int, isSeries: Boolean) {
         featuredInfoJob?.cancel()
+        // Cache hit: synchronous, no coroutine needed
+        infoCache[streamId]?.let { cached ->
+            _featuredInfo.value = cached
+            return
+        }
         featuredInfoJob = viewModelScope.launch {
-            infoCache[streamId]?.let { cached ->
-                _featuredInfo.postValue(cached)
-                return@launch
-            }
             delay(350)
             val info = if (isSeries) {
-                runCatching { repo.getSeriesInfo(streamId) }.getOrNull()?.let { resp ->
-                    val seasons = resp.seasons?.size
-                    FeaturedInfo(
-                        plot = resp.info?.plot,
-                        genre = resp.info?.genre,
-                        cast = resp.info?.cast,
-                        releaseDate = resp.info?.releaseDate,
-                        rating = resp.info?.rating,
-                        seasonCount = seasons,
-                        backdropPath = resp.info?.backdropPath?.takeIf { it.isNotBlank() }
-                            ?: resp.info?.cover?.takeIf { it.isNotBlank() }
-                    )
-                }
+                try {
+                    repo.getSeriesInfo(streamId).let { resp ->
+                        val seasons = resp.seasons?.size
+                        FeaturedInfo(
+                            plot = resp.info?.plot,
+                            genre = resp.info?.genre,
+                            cast = resp.info?.cast,
+                            releaseDate = resp.info?.releaseDate,
+                            rating = resp.info?.rating,
+                            seasonCount = seasons,
+                            backdropPath = resp.info?.backdropPath?.takeIf { it.isNotBlank() }
+                                ?: resp.info?.cover?.takeIf { it.isNotBlank() }
+                        )
+                    }
+                } catch (e: kotlinx.coroutines.CancellationException) {
+                    throw e
+                } catch (_: Exception) { null }
             } else {
-                runCatching { repo.getVodInfo(streamId) }.getOrNull()?.let { resp ->
-                    FeaturedInfo(
-                        plot = resp.info?.plot ?: resp.info?.description,
-                        genre = resp.info?.genre,
-                        cast = resp.info?.cast ?: resp.info?.actors,
-                        releaseDate = resp.info?.releasedate,
-                        rating = resp.info?.rating?.toString(),
-                        seasonCount = null,
-                        backdropPath = resp.info?.backdropPath?.firstOrNull()?.takeIf { it.isNotBlank() }
-                            ?: resp.info?.coverBig?.takeIf { it.isNotBlank() }
-                            ?: resp.info?.movieImage?.takeIf { it.isNotBlank() }
-                    )
-                }
+                try {
+                    repo.getVodInfo(streamId).let { resp ->
+                        FeaturedInfo(
+                            plot = resp.info?.plot ?: resp.info?.description,
+                            genre = resp.info?.genre,
+                            cast = resp.info?.cast ?: resp.info?.actors,
+                            releaseDate = resp.info?.releasedate,
+                            rating = resp.info?.rating?.toString(),
+                            seasonCount = null,
+                            backdropPath = resp.info?.backdropPath?.firstOrNull()?.takeIf { it.isNotBlank() }
+                                ?: resp.info?.coverBig?.takeIf { it.isNotBlank() }
+                                ?: resp.info?.movieImage?.takeIf { it.isNotBlank() }
+                        )
+                    }
+                } catch (e: kotlinx.coroutines.CancellationException) {
+                    throw e
+                } catch (_: Exception) { null }
             }
             info?.let { infoCache[streamId] = it }
-            _featuredInfo.postValue(info)
+            _featuredInfo.value = info
         }
     }
 
