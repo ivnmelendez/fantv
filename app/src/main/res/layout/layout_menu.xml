@@ -4,17 +4,11 @@
     android:layout_width="@dimen/main_menu_view_width_closed"
     android:layout_height="match_parent">
 
-    <!-- Background gradients -->
+    <!-- Background: solid black matching app background -->
     <RelativeLayout
-        android:background="@drawable/gradient_shape_menu_closed"
-        android:layout_width="@dimen/main_menu_view_width_closed"
-        android:layout_height="match_parent" />
-
-    <RelativeLayout
-        android:background="@drawable/gradient_shape_menu"
+        android:background="@color/app_color_1"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_marginStart="@dimen/main_menu_view_width_closed" />
+        android:layout_height="match_parent" />
 
     <!-- Menu items -->
     <androidx.leanback.widget.VerticalGridView
