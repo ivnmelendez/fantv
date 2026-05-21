@@ -54,6 +54,7 @@ class MainViewModel(private val repo: XtreamRepository) : ViewModel() {
                         rating = resp.info?.rating,
                         seasonCount = seasons,
                         backdropPath = resp.info?.backdropPath?.takeIf { it.isNotBlank() }
+                            ?: resp.info?.cover?.takeIf { it.isNotBlank() }
                     )
                 }
             } else {
@@ -66,6 +67,8 @@ class MainViewModel(private val repo: XtreamRepository) : ViewModel() {
                         rating = resp.info?.rating?.toString(),
                         seasonCount = null,
                         backdropPath = resp.info?.backdropPath?.firstOrNull()?.takeIf { it.isNotBlank() }
+                            ?: resp.info?.coverBig?.takeIf { it.isNotBlank() }
+                            ?: resp.info?.movieImage?.takeIf { it.isNotBlank() }
                     )
                 }
             }
