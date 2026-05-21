@@ -17,6 +17,7 @@ class MenuAdapter(
         fun bind(item: MenuItem, isSelected: Boolean) {
             binding.menuIcon.setImageResource(item.iconResId)
             binding.tvTitle.text = item.title
+            binding.menuIcon.alpha = if (isSelected) 1.0f else 0.5f
             binding.menuIconRlaySelected.visibility =
                 if (isSelected) android.view.View.VISIBLE else android.view.View.GONE
 

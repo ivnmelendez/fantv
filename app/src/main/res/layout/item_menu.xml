@@ -21,6 +21,15 @@
             android:paddingStart="@dimen/margin_3"
             android:paddingEnd="@dimen/margin_3">
 
+            <!-- Selected highlight behind icon -->
+            <RelativeLayout
+                android:id="@+id/menu_icon_rlay_selected"
+                android:background="@drawable/shape_menu_item_selected"
+                android:visibility="gone"
+                android:layout_width="@dimen/main_menu_item_icon_rlay_width"
+                android:layout_height="@dimen/main_menu_item_icon_rlay_height"
+                android:layout_centerInParent="true" />
+
             <RelativeLayout
                 android:id="@+id/rlay_menu_icon"
                 android:gravity="center_horizontal"
@@ -33,16 +42,8 @@
                     android:layout_width="@dimen/main_menu_item_icon_height"
                     android:layout_height="@dimen/main_menu_item_icon_height"
                     android:scaleType="fitXY"
-                    android:adjustViewBounds="true" />
-
-                <!-- Red selection indicator bar -->
-                <RelativeLayout
-                    android:id="@+id/menu_icon_rlay_selected"
-                    android:background="@color/app_color_4"
-                    android:visibility="gone"
-                    android:layout_width="@dimen/main_menu_item_icon_height"
-                    android:layout_height="@dimen/margin_2"
-                    android:layout_alignParentBottom="true" />
+                    android:adjustViewBounds="true"
+                    android:layout_centerInParent="true" />
             </RelativeLayout>
         </RelativeLayout>
 
