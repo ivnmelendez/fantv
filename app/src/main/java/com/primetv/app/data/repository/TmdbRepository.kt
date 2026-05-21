@@ -7,7 +7,12 @@ import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
+import java.security.SecureRandom
+import java.security.cert.X509Certificate
 import java.util.concurrent.TimeUnit
+import javax.net.ssl.SSLContext
+import javax.net.ssl.TrustManager
+import javax.net.ssl.X509TrustManager
 
 class TmdbRepository {
 
@@ -33,18 +38,26 @@ class TmdbRepository {
     private val api: TmdbApi by lazy {
         Retrofit.Builder()
             .baseUrl(BASE_URL)
-            .client(
-                OkHttpClient.Builder()
-                    .connectTimeout(10, TimeUnit.SECONDS)
-                    .readTimeout(10, TimeUnit.SECONDS)
-                    .addInterceptor(HttpLoggingInterceptor().apply {
-                        level = HttpLoggingInterceptor.Level.BASIC
-                    })
-                    .build()
-            )
+            .client(trustAllClient())
             .addConverterFactory(GsonConverterFactory.create())
             .build()
             .create(TmdbApi::class.java)
+    }
+
+    private fun trustAllClient(): OkHttpClient {
+        val trustAll = arrayOf<TrustManager>(object : X509TrustManager {
+            override fun checkClientTrusted(chain: Array<X509Certificate>, authType: String) {}
+            override fun checkServerTrusted(chain: Array<X509Certificate>, authType: String) {}
+            override fun getAcceptedIssuers(): Array<X509Certificate> = arrayOf()
+        })
+        val ssl = SSLContext.getInstance("SSL").apply { init(null, trustAll, SecureRandom()) }
+        return OkHttpClient.Builder()
+            .sslSocketFactory(ssl.socketFactory, trustAll[0] as X509TrustManager)
+            .hostnameVerifier { _, _ -> true }
+            .connectTimeout(10, TimeUnit.SECONDS)
+            .readTimeout(10, TimeUnit.SECONDS)
+            .addInterceptor(HttpLoggingInterceptor().apply { level = HttpLoggingInterceptor.Level.BASIC })
+            .build()
     }
 
     suspend fun search(title: String, isSeries: Boolean): TmdbResult? {
