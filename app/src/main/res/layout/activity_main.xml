@@ -44,6 +44,13 @@
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
                         android:background="@drawable/gradient_shape_menu" />
+
+                    <!-- Bottom shadow to blend into content rows -->
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="@dimen/main_upper_view_height"
+                        android:layout_alignParentBottom="true"
+                        android:background="@drawable/gradient_shape_bottom" />
                 </RelativeLayout>
 
                 <!-- Focus border (visible when card is selected) -->
