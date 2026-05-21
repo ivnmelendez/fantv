@@ -1,68 +1,62 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.leanback.widget.BaseCardView xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/rlay_main_menuitem"
     android:focusable="true"
     android:focusableInTouchMode="true"
     android:background="@android:color/transparent"
+    android:orientation="horizontal"
+    android:gravity="center_vertical"
     android:layout_width="match_parent"
     android:layout_height="@dimen/main_menu_item_height">
 
-    <LinearLayout
-        android:id="@+id/main_linear"
-        android:orientation="horizontal"
-        android:gravity="center_vertical"
-        android:layout_width="match_parent"
-        android:layout_height="@dimen/main_menu_item_height">
+    <!-- Icon container (always visible, closed width) -->
+    <RelativeLayout
+        android:id="@+id/rlay_icon_container"
+        android:layout_width="@dimen/main_menu_view_width_closed"
+        android:layout_height="@dimen/main_menu_item_height"
+        android:paddingStart="@dimen/margin_3"
+        android:paddingEnd="@dimen/margin_3">
 
-        <!-- Icon container (always visible, closed width) -->
         <RelativeLayout
-            android:id="@+id/rlay_icon_container"
-            android:layout_width="@dimen/main_menu_view_width_closed"
-            android:layout_height="@dimen/main_menu_item_height"
-            android:paddingStart="@dimen/margin_3"
-            android:paddingEnd="@dimen/margin_3">
+            android:id="@+id/rlay_menu_icon"
+            android:gravity="center_horizontal"
+            android:layout_width="@dimen/main_menu_item_icon_rlay_width"
+            android:layout_height="@dimen/main_menu_item_icon_rlay_height"
+            android:layout_centerInParent="true">
 
+            <ImageView
+                android:id="@+id/menu_icon"
+                android:layout_width="@dimen/main_menu_item_icon_height"
+                android:layout_height="@dimen/main_menu_item_icon_height"
+                android:scaleType="fitXY"
+                android:adjustViewBounds="true" />
+
+            <!-- Red selection indicator bar -->
             <RelativeLayout
-                android:id="@+id/rlay_menu_icon"
-                android:gravity="center_horizontal"
-                android:layout_width="@dimen/main_menu_item_icon_rlay_width"
-                android:layout_height="@dimen/main_menu_item_icon_rlay_height"
-                android:layout_centerInParent="true">
-
-                <ImageView
-                    android:id="@+id/menu_icon"
-                    android:layout_width="@dimen/main_menu_item_icon_height"
-                    android:layout_height="@dimen/main_menu_item_icon_height"
-                    android:scaleType="fitXY"
-                    android:adjustViewBounds="true" />
-
-                <!-- Red selection indicator bar -->
-                <RelativeLayout
-                    android:id="@+id/menu_icon_rlay_selected"
-                    android:background="@color/app_color_4"
-                    android:visibility="gone"
-                    android:layout_width="@dimen/main_menu_item_icon_height"
-                    android:layout_height="@dimen/margin_2"
-                    android:layout_alignParentBottom="true" />
-            </RelativeLayout>
+                android:id="@+id/menu_icon_rlay_selected"
+                android:background="@color/app_color_4"
+                android:visibility="gone"
+                android:layout_width="@dimen/main_menu_item_icon_height"
+                android:layout_height="@dimen/margin_2"
+                android:layout_alignParentBottom="true" />
         </RelativeLayout>
+    </RelativeLayout>
 
-        <!-- Text label (visible when expanded) -->
-        <RelativeLayout
-            android:id="@+id/rlay_menu_item"
-            android:gravity="center_vertical"
-            android:layout_width="@dimen/main_menu_item_title_width"
-            android:layout_height="@dimen/main_menu_item_height"
-            android:paddingStart="@dimen/_8sdp">
+    <!-- Text label (visible when expanded) -->
+    <RelativeLayout
+        android:id="@+id/rlay_menu_item"
+        android:gravity="center_vertical"
+        android:layout_width="@dimen/main_menu_item_title_width"
+        android:layout_height="@dimen/main_menu_item_height"
+        android:paddingStart="@dimen/_8sdp">
 
-            <TextView
-                android:id="@+id/tv_title"
-                android:textSize="@dimen/font_16"
-                android:textColor="#ffaaaaaa"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="-" />
-        </RelativeLayout>
-    </LinearLayout>
+        <TextView
+            android:id="@+id/tv_title"
+            android:textSize="@dimen/font_16"
+            android:textColor="#ffaaaaaa"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="-" />
+    </RelativeLayout>
 
-</androidx.leanback.widget.BaseCardView>
+</LinearLayout>
