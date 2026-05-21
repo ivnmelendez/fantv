@@ -7,7 +7,6 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import com.bumptech.glide.Glide
 import com.primetv.app.App
-import com.primetv.app.data.repository.TmdbRepository
 import com.primetv.app.data.repository.XtreamRepository
 import com.primetv.app.databinding.ActivityDetailBinding
 import com.primetv.app.ui.main.MainActivity
@@ -20,7 +19,7 @@ class DetailActivity : AppCompatActivity() {
     private lateinit var binding: ActivityDetailBinding
     private val prefs get() = App.instance.prefs
     private val repo by lazy { XtreamRepository(prefs, App.instance.db) }
-    private val tmdb = TmdbRepository()
+    private val tmdb get() = App.instance.tmdb
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

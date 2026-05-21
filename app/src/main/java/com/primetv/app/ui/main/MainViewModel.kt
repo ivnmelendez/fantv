@@ -5,7 +5,6 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.primetv.app.data.model.VodStream
-import com.primetv.app.data.repository.TmdbRepository
 import com.primetv.app.data.repository.XtreamRepository
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
@@ -38,7 +37,7 @@ sealed class MainState {
 
 class MainViewModel(private val repo: XtreamRepository) : ViewModel() {
 
-    private val tmdb = TmdbRepository()
+    private val tmdb get() = App.instance.tmdb
 
     private val _state = MutableLiveData<MainState>(MainState.Loading)
     val state: LiveData<MainState> = _state

@@ -60,14 +60,18 @@ class TmdbRepository {
             .build()
     }
 
+    private val cache = HashMap<String, TmdbResult>()
+
     suspend fun search(title: String, isSeries: Boolean): TmdbResult? {
         val query = cleanTitle(title)
+        val key = "$query:$isSeries"
+        cache[key]?.let { return it }
         Log.d("TMDB", "search: '$query' isSeries=$isSeries")
         return try {
             val result = if (isSeries) api.searchTv(API_KEY, query).results?.firstOrNull()
                          else api.searchMovie(API_KEY, query).results?.firstOrNull()
             Log.d("TMDB", "result: ${result?.title ?: result?.name} backdrop=${result?.backdropPath}")
-            result
+            result?.also { cache[key] = it }
         } catch (e: Exception) {
             Log.e("TMDB", "search failed: ${e.message}")
             null
