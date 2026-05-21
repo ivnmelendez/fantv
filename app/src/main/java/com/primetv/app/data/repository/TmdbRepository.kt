@@ -1,8 +1,10 @@
 package com.primetv.app.data.repository
 
+import android.util.Log
 import com.primetv.app.data.api.TmdbApi
 import com.primetv.app.data.api.TmdbResult
 import okhttp3.OkHttpClient
+import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import java.util.concurrent.TimeUnit
@@ -35,6 +37,9 @@ class TmdbRepository {
                 OkHttpClient.Builder()
                     .connectTimeout(10, TimeUnit.SECONDS)
                     .readTimeout(10, TimeUnit.SECONDS)
+                    .addInterceptor(HttpLoggingInterceptor().apply {
+                        level = HttpLoggingInterceptor.Level.BASIC
+                    })
                     .build()
             )
             .addConverterFactory(GsonConverterFactory.create())
@@ -44,10 +49,16 @@ class TmdbRepository {
 
     suspend fun search(title: String, isSeries: Boolean): TmdbResult? {
         val query = cleanTitle(title)
+        Log.d("TMDB", "search: '$query' isSeries=$isSeries")
         return try {
-            if (isSeries) api.searchTv(API_KEY, query).results?.firstOrNull()
-            else api.searchMovie(API_KEY, query).results?.firstOrNull()
-        } catch (_: Exception) { null }
+            val result = if (isSeries) api.searchTv(API_KEY, query).results?.firstOrNull()
+                         else api.searchMovie(API_KEY, query).results?.firstOrNull()
+            Log.d("TMDB", "result: ${result?.title ?: result?.name} backdrop=${result?.backdropPath}")
+            result
+        } catch (e: Exception) {
+            Log.e("TMDB", "search failed: ${e.message}")
+            null
+        }
     }
 
     fun backdropUrl(path: String?): String? =
