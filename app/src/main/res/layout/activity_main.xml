@@ -20,11 +20,10 @@
 
             <RelativeLayout
                 android:id="@+id/rlay_feat_inner"
-                android:background="@drawable/shape_rounded_corners"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_marginStart="@dimen/main_upper_view_horizontal_margin"
-                android:layout_marginEnd="@dimen/main_upper_view_horizontal_margin">
+                android:background="@drawable/shape_rounded_corners">
 
                 <!-- Background image + video preview -->
                 <RelativeLayout
@@ -35,9 +34,9 @@
                         android:id="@+id/iv_background"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
-                        android:scaleType="centerCrop"
+                        android:layout_alignParentEnd="true"
                         android:adjustViewBounds="true"
-                        android:layout_alignParentEnd="true" />
+                        android:scaleType="centerCrop" />
 
                     <!-- Dark gradient overlay left-side for text legibility -->
                     <View
@@ -48,159 +47,166 @@
                     <!-- Bottom shadow to blend into content rows -->
                     <View
                         android:layout_width="match_parent"
-                        android:layout_height="@dimen/main_upper_view_height"
+                        android:layout_height="match_parent"
                         android:layout_alignParentBottom="true"
+                        android:layout_marginBottom="0dp"
                         android:background="@drawable/gradient_shape_bottom" />
                 </RelativeLayout>
 
                 <!-- Focus border (visible when card is selected) -->
                 <RelativeLayout
                     android:id="@+id/rlay_featBorder"
-                    android:background="@drawable/shape_feat_card"
-                    android:visibility="gone"
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent" />
+                    android:layout_height="match_parent"
+                    android:background="@drawable/shape_feat_card"
+                    android:visibility="gone" />
 
                 <!-- Content info overlay -->
                 <LinearLayout
                     android:id="@+id/card_info"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
                     android:orientation="vertical"
                     android:paddingStart="@dimen/_15sdp"
                     android:paddingTop="@dimen/_2sdp"
                     android:paddingEnd="@dimen/_15sdp"
                     android:paddingBottom="@dimen/_10sdp"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent">
+                    android:visibility="visible">
 
                     <RelativeLayout
                         android:layout_width="wrap_content"
                         android:layout_height="0dp"
-                        android:layout_weight="1" />
+                        android:layout_weight="1"
+                        android:visibility="gone" />
 
                     <!-- Title -->
                     <TextView
                         android:id="@+id/tv_feat_title"
-                        android:textSize="@dimen/font_title"
-                        android:textStyle="bold"
-                        android:textColor="@color/white"
                         android:layout_width="@dimen/main_upper_view_description_width"
                         android:layout_height="wrap_content"
+                        android:layout_marginBottom="@dimen/margin_3"
                         android:maxLines="2"
                         android:shadowColor="@color/black"
                         android:shadowDx="2"
                         android:shadowDy="2"
                         android:shadowRadius="2"
-                        android:layout_marginBottom="@dimen/margin_3" />
+                        android:textColor="@color/white"
+                        android:textSize="@dimen/font_title"
+                        android:textStyle="bold" />
 
                     <!-- Meta: rating, year, duration -->
                     <LinearLayout
-                        android:gravity="center_vertical"
-                        android:orientation="horizontal"
                         android:id="@+id/ll_rating"
                         android:layout_width="match_parent"
-                        android:layout_height="@dimen/main_featuring_rating_height">
+                        android:layout_height="@dimen/main_featuring_rating_height"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal"
+                        android:visibility="visible">
 
                         <!-- IMDb badge -->
                         <TextView
                             android:id="@+id/tv_imdb_badge"
-                            android:text="IMDb"
-                            android:textSize="@dimen/font_14"
-                            android:textStyle="bold"
-                            android:textColor="@color/black"
-                            android:background="#F5C518"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:paddingStart="@dimen/margin_3"
-                            android:paddingEnd="@dimen/margin_3"
-                            android:layout_marginEnd="@dimen/margin_3" />
-
-                        <TextView
-                            android:id="@+id/tv_rating"
-                            android:textSize="@dimen/font_14"
-                            android:textColor="@color/white"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginEnd="@dimen/_11sdp" />
-
-                        <TextView
-                            android:id="@+id/tv_year"
-                            android:textSize="@dimen/font_14"
-                            android:textColor="@color/white"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginEnd="@dimen/margin_3" />
-
-                        <TextView
-                            android:id="@+id/tv_rated"
-                            android:textSize="@dimen/font_14"
-                            android:textStyle="bold"
-                            android:textColor="@color/black"
-                            android:background="@color/white"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:paddingStart="@dimen/margin_3"
-                            android:paddingEnd="@dimen/margin_3"
-                            android:layout_marginEnd="@dimen/margin_3" />
-
-                        <TextView
-                            android:id="@+id/tv_seasons"
-                            android:textSize="@dimen/font_14"
-                            android:textColor="@color/white"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginEnd="@dimen/margin_3"
+                            android:background="#F5C518"
+                            android:paddingStart="@dimen/margin_3"
+                            android:paddingEnd="@dimen/margin_3"
+                            android:text="IMDb"
+                            android:textColor="@color/black"
+                            android:textSize="@dimen/font_14"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:id="@+id/tv_rating"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginEnd="@dimen/_11sdp"
+                            android:textColor="@color/white"
+                            android:textSize="@dimen/font_14" />
+
+                        <TextView
+                            android:id="@+id/tv_year"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginEnd="@dimen/margin_3"
+                            android:textColor="@color/white"
+                            android:textSize="@dimen/font_14"
                             android:visibility="gone" />
 
                         <TextView
-                            android:id="@+id/tv_duration"
-                            android:textSize="@dimen/font_14"
-                            android:textColor="@color/white"
+                            android:id="@+id/tv_rated"
                             android:layout_width="wrap_content"
-                            android:layout_height="wrap_content" />
+                            android:layout_height="wrap_content"
+                            android:layout_marginEnd="@dimen/margin_3"
+                            android:background="@color/white"
+                            android:paddingStart="@dimen/margin_3"
+                            android:paddingEnd="@dimen/margin_3"
+                            android:textColor="@color/black"
+                            android:textSize="@dimen/font_14"
+                            android:textStyle="bold"
+                            android:visibility="gone" />
+
+                        <TextView
+                            android:id="@+id/tv_seasons"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginEnd="@dimen/margin_3"
+                            android:textColor="@color/white"
+                            android:textSize="@dimen/font_14"
+                            android:visibility="visible" />
+
+                        <TextView
+                            android:id="@+id/tv_duration"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:textColor="@color/white"
+                            android:textSize="@dimen/font_14" />
                     </LinearLayout>
 
                     <!-- Description -->
                     <TextView
                         android:id="@+id/tv_description"
-                        android:textSize="@dimen/font_16"
-                        android:textColor="@color/white"
                         android:layout_width="@dimen/main_upper_view_description_width"
                         android:layout_height="wrap_content"
+                        android:layout_marginBottom="@dimen/margin_3"
                         android:maxLines="4"
                         android:shadowColor="@color/black"
                         android:shadowDx="2"
                         android:shadowDy="2"
                         android:shadowRadius="2"
-                        android:layout_marginBottom="@dimen/margin_3" />
+                        android:textColor="@color/white"
+                        android:textSize="@dimen/font_16" />
 
                     <!-- Genre + Actors row -->
                     <TextView
                         android:id="@+id/tv_genre"
-                        android:textSize="@dimen/font_14"
-                        android:textColor="@color/gray"
                         android:layout_width="@dimen/main_upper_view_description_width"
                         android:layout_height="wrap_content"
+                        android:layout_marginBottom="@dimen/margin_6"
                         android:maxLines="1"
                         android:shadowColor="@color/black"
                         android:shadowDx="2"
                         android:shadowDy="2"
                         android:shadowRadius="2"
-                        android:layout_marginBottom="@dimen/margin_6" />
+                        android:textColor="@color/gray"
+                        android:textSize="@dimen/font_14" />
 
                     <!-- Play button -->
                     <Button
                         android:id="@+id/btn_play_feat"
-                        android:textSize="@dimen/font_16"
-                        android:textColor="@color/black"
-                        android:background="@drawable/shape_feat_button"
-                        android:paddingStart="@dimen/_10sdp"
-                        android:paddingEnd="@dimen/_10sdp"
                         android:layout_width="@dimen/_100sdp"
                         android:layout_height="@dimen/_22sdp"
+                        android:background="@drawable/shape_feat_button"
+                        android:focusable="true"
+                        android:focusableInTouchMode="true"
+                        android:paddingStart="@dimen/_10sdp"
+                        android:paddingEnd="@dimen/_10sdp"
                         android:text="@string/play_content"
                         android:textAllCaps="false"
-                        android:focusable="true"
-                        android:focusableInTouchMode="true" />
+                        android:textColor="@color/black"
+                        android:textSize="@dimen/font_16"
+                        android:visibility="gone" />
                 </LinearLayout>
             </RelativeLayout>
         </RelativeLayout>
