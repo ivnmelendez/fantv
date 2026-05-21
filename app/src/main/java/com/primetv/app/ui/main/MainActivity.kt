@@ -126,6 +126,9 @@ class MainActivity : AppCompatActivity() {
             if (!info.rating.isNullOrBlank()) {
                 binding.tvRating.text = info.rating
             }
+            if (!info.backdropPath.isNullOrBlank()) {
+                Glide.with(this).load(info.backdropPath).into(binding.ivBackground)
+            }
             if (!info.releaseDate.isNullOrBlank()) {
                 val year = info.releaseDate.take(4)
                 if (year.length == 4 && year.all { it.isDigit() }) {

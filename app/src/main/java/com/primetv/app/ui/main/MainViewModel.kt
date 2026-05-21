@@ -14,7 +14,8 @@ data class FeaturedInfo(
     val cast: String?,
     val releaseDate: String?,
     val rating: String?,
-    val seasonCount: Int?
+    val seasonCount: Int?,
+    val backdropPath: String?
 )
 
 data class ContentRow(
@@ -51,7 +52,8 @@ class MainViewModel(private val repo: XtreamRepository) : ViewModel() {
                         cast = resp.info?.cast,
                         releaseDate = resp.info?.releaseDate,
                         rating = resp.info?.rating,
-                        seasonCount = seasons
+                        seasonCount = seasons,
+                        backdropPath = resp.info?.backdropPath?.takeIf { it.isNotBlank() }
                     )
                 }
             } else {
@@ -62,7 +64,8 @@ class MainViewModel(private val repo: XtreamRepository) : ViewModel() {
                         cast = resp.info?.cast ?: resp.info?.actors,
                         releaseDate = resp.info?.releasedate,
                         rating = resp.info?.rating?.toString(),
-                        seasonCount = null
+                        seasonCount = null,
+                        backdropPath = resp.info?.backdropPath?.firstOrNull()?.takeIf { it.isNotBlank() }
                     )
                 }
             }
