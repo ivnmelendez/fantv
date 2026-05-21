@@ -5,6 +5,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.primetv.app.App
+import com.primetv.app.data.model.Category
 import com.primetv.app.data.model.VodStream
 import com.primetv.app.data.repository.XtreamRepository
 import kotlinx.coroutines.Job
@@ -36,7 +37,7 @@ sealed class MainState {
     data class Error(val message: String) : MainState()
 }
 
-class MainViewModel(private val repo: XtreamRepository) : ViewModel() {
+class MainViewModel(private v?al repo: XtreamRepository) : ViewModel() {
 
     private val tmdb get() = App.instance.tmdb
 
@@ -49,6 +50,122 @@ class MainViewModel(private val repo: XtreamRepository) : ViewModel() {
     private val infoCache = HashMap<Int, FeaturedInfo>()
     private val pendingFetches = HashSet<Int>()
     private var currentFeaturedId = -1
+
+    private fun isCamCategoryName(name: String): Boolean {
+        val normalized = name.trim().lowercase()
+        return normalized == "cam" ||
+            normalized.contains(" cam") ||
+            normalized.contains("cam ") ||
+            normalized.contains("vod cam")
+    }
+
+    private fun isYearCategoryName(name: String): Boolean {
+        return Regex("""\b(19|20)\d{2}\b""").containsMatchIn(name)
+    }
+
+    private fun isPlatformCategoryName(name: String): Boolean {
+        val normalized = name.trim().lowercase()
+        val keywords = listOf(
+            "netflix",
+            "disney",
+            "prime video",
+            "primevideo",
+            "amazon prime",
+            "amazon",
+            "hbo",
+            "max",
+            "paramount",
+            "apple tv",
+            "apple tv+",
+            "showtime",
+            "sky",
+            "movistar",
+            "crunchyroll",
+            "universal",
+            "peacock",
+            "tubi",
+            "mubi",
+            "starz",
+            "star+",
+            "star plus"
+        )
+        return keywords.any { keyword -> normalized.contains(keyword) }
+    }
+
+    private fun isGenreCategoryName(name: String): Boolean {
+        val normalized = name.trim().lowercase()
+        val keywords = listOf(
+            "accion",
+            "acción",
+            "action",
+            "aventura",
+            "adventure",
+            "animacion",
+            "animación",
+            "animation",
+            "anime",
+            "comedia",
+            "comedy",
+            "crimen",
+            "crime",
+            "documental",
+            "documentary",
+            "drama",
+            "familia",
+            "family",
+            "fantasia",
+            "fantasía",
+            "fantasy",
+            "historia",
+            "history",
+            "horror",
+            "terror",
+            "misterio",
+            "mystery",
+            "musical",
+            "romance",
+            "romantic",
+            "ciencia ficcion",
+            "ciencia ficción",
+            "sci-fi",
+            "sci fi",
+            "thriller",
+            "suspenso",
+            "western",
+            "guerra",
+            "war",
+            "biografia",
+            "biografía",
+            "biopic",
+            "infantil",
+            "kids",
+            "deporte",
+            "sport",
+            "sports"
+        )
+        return keywords.any { keyword -> normalized.contains(keyword) }
+    }
+
+    private fun categorySortBucket(name: String): Int = when {
+        isGenreCategoryName(name) -> 0
+        isPlatformCategoryName(name) -> 1
+        isYearCategoryName(name) -> 2
+        else -> 3
+    }
+
+    private fun seriesCategorySortBucket(name: String): Int = when {
+        isPlatformCategoryName(name) -> 0
+        else -> 1
+    }
+
+    private fun displayCategoryName(name: String): String {
+        val trimmed = name.trim()
+        val cleaned = trimmed.replaceFirst(
+            Regex("^(vod|series)\\s*(\\|\\|)?\\s*[:\\-|]*\\s*", RegexOption.IGNORE_CASE),
+            ""
+        ).trim()
+        return cleaned.ifBlank { trimmed }
+    }
 
     fun loadFeaturedInfo(streamId: Int, name: String, isSeries: Boolean) {
         currentFeaturedId = streamId
@@ -86,7 +203,14 @@ class MainViewModel(private val repo: XtreamRepository) : ViewModel() {
         _state.value = MainState.Loading
         viewModelScope.launch {
             try {
+                val vodCategories = runCatching { repo.getVodCategories() }.getOrElse { emptyList() }
+                val camCategoryIds = vodCategories
+                    .filter { it.name?.let(::isCamCategoryName) == true }
+                    .mapNotNull { it.id }
+                    .toSet()
+
                 val movies = runCatching { repo.getVodStreams() }.getOrElse { emptyList() }
+                    .filter { it.categoryId !in camCategoryIds }
                     .sortedByDescending { it.added.orEmpty() }
 
                 val series = runCatching { repo.getSeries() }.getOrElse { emptyList() }
@@ -133,10 +257,20 @@ class MainViewModel(private val repo: XtreamRepository) : ViewModel() {
         viewModelScope.launch {
             try {
                 val cats = repo.getVodCategories()
+                val filteredCats = cats.filterNot { cat -> cat.name?.let(::isCamCategoryName) == true }
+                    .sortedWith(
+                        compareBy<Category> { categorySortBucket(it.name.orEmpty()) }
+                            .thenBy { it.name.orEmpty().lowercase() }
+                    )
+                val camCategoryIds = cats
+                    .filter { it.name?.let(::isCamCategoryName) == true }
+                    .mapNotNull { it.id }
+                    .toSet()
                 val allItems = repo.getVodStreams()
-                val rows = cats.mapNotNull { cat ->
+                    .filter { it.categoryId !in camCategoryIds }
+                val rows = filteredCats.mapNotNull { cat ->
                     val id = cat.id ?: return@mapNotNull null
-                    val name = cat.name ?: return@mapNotNull null
+                    val name = cat.name?.let(::displayCategoryName) ?: return@mapNotNull null
                     val items = allItems.filter { it.categoryId == id }.take(30)
                     if (items.isEmpty()) null else ContentRow(id, name, items)
                 }
@@ -173,12 +307,17 @@ class MainViewModel(private val repo: XtreamRepository) : ViewModel() {
                         directSource = null
                     )
                 }
-                val rows = cats.mapNotNull { cat ->
-                    val id = cat.id ?: return@mapNotNull null
-                    val name = cat.name ?: return@mapNotNull null
-                    val items = allItems.filter { it.categoryId == id }.take(30)
-                    if (items.isEmpty()) null else ContentRow(id, name, items)
-                }
+                val rows = cats
+                    .sortedWith(
+                        compareBy<Category> { seriesCategorySortBucket(it.name.orEmpty()) }
+                            .thenBy { it.name.orEmpty().lowercase() }
+                    )
+                    .mapNotNull { cat ->
+                        val id = cat.id ?: return@mapNotNull null
+                        val name = cat.name?.let(::displayCategoryName) ?: return@mapNotNull null
+                        val items = allItems.filter { it.categoryId == id }.take(30)
+                        if (items.isEmpty()) null else ContentRow(id, name, items)
+                    }
 
                 val featured = allItems
                     .filter { !it.streamIcon.isNullOrBlank() }
