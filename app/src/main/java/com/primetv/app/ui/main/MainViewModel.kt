@@ -4,6 +4,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.primetv.app.App
 import com.primetv.app.data.model.VodStream
 import com.primetv.app.data.repository.XtreamRepository
 import kotlinx.coroutines.Job

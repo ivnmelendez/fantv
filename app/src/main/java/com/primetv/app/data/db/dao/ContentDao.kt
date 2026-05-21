@@ -42,6 +42,27 @@ interface ContentDao {
     @Query("DELETE FROM series")
     suspend fun deleteSeries()
 
+    // Series info cache
+    @Query("SELECT * FROM series_info_cache WHERE seriesId = :seriesId LIMIT 1")
+    suspend fun getSeriesInfoCache(seriesId: Int): SeriesInfoCacheEntity?
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun upsertSeriesInfoCache(entity: SeriesInfoCacheEntity)
+
+    @Query("DELETE FROM series_info_cache WHERE cachedAt < :cutoff")
+    suspend fun deleteSeriesInfoCacheOlderThan(cutoff: Long)
+
+    @Query("""
+        DELETE FROM series_info_cache
+        WHERE seriesId NOT IN (
+            SELECT seriesId
+            FROM series_info_cache
+            ORDER BY cachedAt DESC
+            LIMIT :maxEntries
+        )
+    """)
+    suspend fun pruneSeriesInfoCache(maxEntries: Int)
+
     // Live
     @Query("SELECT * FROM live_streams")
     suspend fun getLiveStreams(): List<LiveStreamEntity>
