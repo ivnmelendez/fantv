@@ -7,6 +7,7 @@ import androidx.lifecycle.viewModelScope
 import com.primetv.app.data.model.VodStream
 import com.primetv.app.data.repository.XtreamRepository
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 data class FeaturedInfo(
@@ -43,10 +44,16 @@ class MainViewModel(private val repo: XtreamRepository) : ViewModel() {
     val featuredInfo: LiveData<FeaturedInfo?> = _featuredInfo
 
     private var featuredInfoJob: Job? = null
+    private val infoCache = HashMap<Int, FeaturedInfo>()
 
     fun loadFeaturedInfo(streamId: Int, isSeries: Boolean) {
         featuredInfoJob?.cancel()
         featuredInfoJob = viewModelScope.launch {
+            infoCache[streamId]?.let { cached ->
+                _featuredInfo.postValue(cached)
+                return@launch
+            }
+            delay(350)
             val info = if (isSeries) {
                 runCatching { repo.getSeriesInfo(streamId) }.getOrNull()?.let { resp ->
                     val seasons = resp.seasons?.size
@@ -76,6 +83,7 @@ class MainViewModel(private val repo: XtreamRepository) : ViewModel() {
                     )
                 }
             }
+            info?.let { infoCache[streamId] = it }
             _featuredInfo.postValue(info)
         }
     }
