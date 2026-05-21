@@ -7,6 +7,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.bumptech.glide.Glide
+import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
 import com.primetv.app.App
 import com.primetv.app.R
 import com.primetv.app.data.model.MenuItem
@@ -97,7 +98,14 @@ class MainActivity : AppCompatActivity() {
                     bindFeatured(state.featuredItem)
                     binding.rvRows.apply {
                         layoutManager = LinearLayoutManager(this@MainActivity)
-                        adapter = RowsAdapter(state.rows) { item -> onItemClick(item) }
+                        adapter = RowsAdapter(
+                            rows = state.rows,
+                            onItemClick = { item -> onItemClick(item) },
+                            onItemFocus = { item ->
+                                bindFeatured(item)
+                                viewModel.loadFeaturedInfo(item.streamId, item.containerExtension == "series")
+                            }
+                        )
                     }
                     state.featuredItem?.let { item ->
                         viewModel.loadFeaturedInfo(item.streamId, item.containerExtension == "series")
@@ -127,7 +135,9 @@ class MainActivity : AppCompatActivity() {
                 binding.tvRating.text = info.rating
             }
             if (!info.backdropPath.isNullOrBlank()) {
-                Glide.with(this).load(info.backdropPath).into(binding.ivBackground)
+                Glide.with(this).load(info.backdropPath)
+                    .transition(DrawableTransitionOptions.withCrossFade(400))
+                    .into(binding.ivBackground)
             }
             if (!info.releaseDate.isNullOrBlank()) {
                 val year = info.releaseDate.take(4)
@@ -141,7 +151,9 @@ class MainActivity : AppCompatActivity() {
     private fun bindFeatured(item: VodStream?) {
         item ?: return
         binding.cardInfo.visibility = View.VISIBLE
-        Glide.with(this).load(item.streamIcon).into(binding.ivBackground)
+        Glide.with(this).load(item.streamIcon)
+            .transition(DrawableTransitionOptions.withCrossFade(300))
+            .into(binding.ivBackground)
         binding.tvFeatTitle.text = item.name
         binding.tvRating.text = item.rating ?: "N/A"
         binding.tvDescription.visibility = View.GONE

@@ -9,7 +9,8 @@ import com.primetv.app.databinding.ItemCategoryRowBinding
 
 class RowsAdapter(
     private val rows: List<ContentRow>,
-    private val onItemClick: (VodStream) -> Unit
+    private val onItemClick: (VodStream) -> Unit,
+    private val onItemFocus: (VodStream) -> Unit = {}
 ) : RecyclerView.Adapter<RowsAdapter.RowVH>() {
 
     inner class RowVH(val binding: ItemCategoryRowBinding) : RecyclerView.ViewHolder(binding.root) {
@@ -17,7 +18,7 @@ class RowsAdapter(
             binding.tvRowTitle.text = row.categoryName
             binding.rvRow.apply {
                 layoutManager = LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
-                adapter = PosterAdapter(row.items, onItemClick)
+                adapter = PosterAdapter(row.items, onItemClick, onItemFocus)
             }
         }
     }

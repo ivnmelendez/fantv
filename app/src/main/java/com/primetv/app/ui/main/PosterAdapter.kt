@@ -9,7 +9,8 @@ import com.primetv.app.databinding.ItemPosterBinding
 
 class PosterAdapter(
     private val items: List<VodStream>,
-    private val onClick: (VodStream) -> Unit
+    private val onClick: (VodStream) -> Unit,
+    private val onFocus: (VodStream) -> Unit = {}
 ) : RecyclerView.Adapter<PosterAdapter.VH>() {
 
     inner class VH(val binding: ItemPosterBinding) : RecyclerView.ViewHolder(binding.root) {
@@ -20,6 +21,9 @@ class PosterAdapter(
                 .into(binding.poster)
 
             binding.root.setOnClickListener { onClick(item) }
+            binding.root.setOnFocusChangeListener { _, hasFocus ->
+                if (hasFocus) onFocus(item)
+            }
         }
     }
 
