@@ -3,6 +3,8 @@ package com.primetv.app.data.repository
 import android.util.Log
 import com.primetv.app.data.api.TmdbApi
 import com.primetv.app.data.api.TmdbResult
+import kotlinx.coroutines.async
+import kotlinx.coroutines.coroutineScope
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
@@ -28,6 +30,19 @@ class TmdbRepository {
 
         fun extractQualityTag(title: String): String? =
             QUALITY_REGEX.find(title)?.value?.trim('(', ')', ' ')?.uppercase()
+
+        // Strip year from END only — preserves titles like "2001: A Space Odyssey"
+        private val YEAR_SUFFIX_REGEX = Regex("""\s*\(?(19|20)\d{2}\)?\s*$""")
+
+        fun normalizeTitle(raw: String): String = raw
+            .replace(QUALITY_REGEX, "")
+            .replace(YEAR_SUFFIX_REGEX, "")
+            .replace(Regex("\\s{2,}"), " ")
+            .trim()
+            .lowercase()
+
+        fun extractYear(raw: String): String? =
+            Regex("""\b(19|20)\d{2}\b""").find(raw)?.value
 
         private val MOVIE_GENRES = mapOf(
             28 to "Acción", 12 to "Aventura", 16 to "Animación", 35 to "Comedia",
@@ -94,9 +109,23 @@ class TmdbRepository {
         return ids?.mapNotNull { map[it] }?.take(3)?.joinToString(", ") ?: ""
     }
 
-    private fun cleanTitle(raw: String) = raw
-        .replace(QUALITY_REGEX, "")
-        .replace(Regex("\\(\\d{4}\\)"), "")
-        .replace(Regex("\\s{2,}"), " ")
-        .trim()
+    private fun cleanTitle(raw: String) = normalizeTitle(raw)
+
+    suspend fun fetchTrendingMovies(): List<TmdbResult> = coroutineScope {
+        val p1 = async { runCatching { api.trendingMovies(API_KEY, page = 1).results ?: emptyList() }.getOrElse { emptyList() } }
+        val p2 = async { runCatching { api.trendingMovies(API_KEY, page = 2).results ?: emptyList() }.getOrElse { emptyList() } }
+        (p1.await() + p2.await()).distinctBy { it.id }
+    }
+
+    suspend fun fetchTrendingTv(): List<TmdbResult> = coroutineScope {
+        val p1 = async { runCatching { api.trendingTv(API_KEY, page = 1).results ?: emptyList() }.getOrElse { emptyList() } }
+        val p2 = async { runCatching { api.trendingTv(API_KEY, page = 2).results ?: emptyList() }.getOrElse { emptyList() } }
+        (p1.await() + p2.await()).distinctBy { it.id }
+    }
+
+    suspend fun fetchNowPlayingMovies(): List<TmdbResult> = coroutineScope {
+        val p1 = async { runCatching { api.nowPlayingMovies(API_KEY, page = 1).results ?: emptyList() }.getOrElse { emptyList() } }
+        val p2 = async { runCatching { api.nowPlayingMovies(API_KEY, page = 2).results ?: emptyList() }.getOrElse { emptyList() } }
+        (p1.await() + p2.await()).distinctBy { it.id }
+    }
 }

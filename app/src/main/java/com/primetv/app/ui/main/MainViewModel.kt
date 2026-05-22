@@ -8,7 +8,9 @@ import com.primetv.app.App
 import com.primetv.app.data.model.Category
 import com.primetv.app.data.model.VodStream
 import com.primetv.app.data.repository.XtreamRepository
+import com.primetv.app.data.repository.TmdbRepository
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.async
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
@@ -239,10 +241,48 @@ class MainViewModel(private val repo: XtreamRepository) : ViewModel() {
                 val latestMovies = movies.take(30)
                 val latestSeries = series.take(30)
 
+                val moviesByTitle = movies.groupBy { TmdbRepository.normalizeTitle(it.name) }
+                val seriesByTitle = series.groupBy { TmdbRepository.normalizeTitle(it.name) }
+
+                val trendingMoviesDeferred = async { tmdb.fetchTrendingMovies() }
+                val trendingTvDeferred = async { tmdb.fetchTrendingTv() }
+                val nowPlayingDeferred = async { tmdb.fetchNowPlayingMovies() }
+
+                fun matchMovie(candidates: List<VodStream>?, tmdbYear: String?): VodStream? {
+                    if (candidates.isNullOrEmpty()) return null
+                    if (candidates.size == 1 || tmdbYear == null) return candidates.first()
+                    return candidates.firstOrNull { TmdbRepository.extractYear(it.name) == tmdbYear }
+                        ?: candidates.first()
+                }
+
+                val trendingMoviesRow = trendingMoviesDeferred.await()
+                    .mapNotNull { r ->
+                        matchMovie(moviesByTitle[TmdbRepository.normalizeTitle(r.title ?: "")], r.releaseDate?.take(4))
+                    }
+                    .distinctBy { it.streamId }
+                    .take(30)
+
+                val trendingSeriesRow = trendingTvDeferred.await()
+                    .mapNotNull { r ->
+                        matchMovie(seriesByTitle[TmdbRepository.normalizeTitle(r.name ?: "")], r.firstAirDate?.take(4))
+                    }
+                    .distinctBy { it.streamId }
+                    .take(30)
+
+                val nowPlayingRow = nowPlayingDeferred.await()
+                    .mapNotNull { r ->
+                        matchMovie(moviesByTitle[TmdbRepository.normalizeTitle(r.title ?: "")], r.releaseDate?.take(4))
+                    }
+                    .distinctBy { it.streamId }
+                    .take(30)
+
                 val rows = buildList {
+                    if (trendingMoviesRow.isNotEmpty()) add(ContentRow("home_trending_movies", "Películas en tendencia", trendingMoviesRow))
+                    if (trendingSeriesRow.isNotEmpty()) add(ContentRow("home_trending_series", "Series en tendencia", trendingSeriesRow))
+                    if (nowPlayingRow.isNotEmpty()) add(ContentRow("home_now_playing", "Películas en cartelera", nowPlayingRow))
                     if (latestMovies.isNotEmpty()) add(ContentRow("home_latest_movies", "Lo último agregado", latestMovies))
                     if (latestSeries.isNotEmpty()) add(ContentRow("home_latest_series", "Series recién actualizadas", latestSeries))
-                    if (sports.isNotEmpty()) add(ContentRow("home_sports", "Eventos Deportivos del día", sports.take(30), isRefreshable = true))
+                    if (sports.isNotEmpty()) add(ContentRow("home_sports", "Eventos Deportivos del día", sports.take(50), isRefreshable = true))
                 }
 
                 val featured = (latestMovies + latestSeries + sports)
@@ -258,7 +298,7 @@ class MainViewModel(private val repo: XtreamRepository) : ViewModel() {
 
     fun refreshSportsRow() {
         viewModelScope.launch {
-            _sportsRefreshed.value = loadSportsRow(forceApi = true).take(30)
+            _sportsRefreshed.value = loadSportsRow(forceApi = true).take(50)
         }
     }
 

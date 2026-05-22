@@ -35,4 +35,26 @@ interface TmdbApi {
         @Query("query") query: String,
         @Query("language") language: String = "es-MX"
     ): TmdbSearchResponse
+
+    @GET("trending/movie/day")
+    suspend fun trendingMovies(
+        @Query("api_key") apiKey: String,
+        @Query("language") language: String = "es-MX",
+        @Query("page") page: Int = 1
+    ): TmdbSearchResponse
+
+    @GET("trending/tv/day")
+    suspend fun trendingTv(
+        @Query("api_key") apiKey: String,
+        @Query("language") language: String = "es-MX",
+        @Query("page") page: Int = 1
+    ): TmdbSearchResponse
+
+    @GET("movie/now_playing")
+    suspend fun nowPlayingMovies(
+        @Query("api_key") apiKey: String,
+        @Query("language") language: String = "es-MX",
+        @Query("region") region: String = "MX",
+        @Query("page") page: Int = 1
+    ): TmdbSearchResponse
 }
