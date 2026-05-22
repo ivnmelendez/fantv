@@ -18,6 +18,10 @@ class LoginActivity : AppCompatActivity() {
     private lateinit var viewModel: LoginViewModel
     private val prefs get() = App.instance.prefs
 
+    companion object {
+        private const val SERVER_URL = "http://alfastr3am.lat:2082"
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityLoginBinding.inflate(layoutInflater)
@@ -39,13 +43,9 @@ class LoginActivity : AppCompatActivity() {
             when (state) {
                 is LoginState.Loading -> showSplash()
                 is LoginState.Success -> {
-                    // Save credentials (already saved on first login; update on re-login)
-                    val server = binding.etServer.text.toString().ifBlank { prefs.serverUrl }
-                    val user   = binding.etUsername.text.toString().ifBlank { prefs.username }
-                    val pass   = binding.etPassword.text.toString().ifBlank { prefs.password }
-                    prefs.serverUrl = server
-                    prefs.username  = user
-                    prefs.password  = pass
+                    prefs.serverUrl = SERVER_URL
+                    prefs.username  = binding.etUsername.text.toString().ifBlank { prefs.username }
+                    prefs.password  = binding.etPassword.text.toString().ifBlank { prefs.password }
                     goToMain()
                 }
                 is LoginState.Error -> {
@@ -71,7 +71,7 @@ class LoginActivity : AppCompatActivity() {
     private fun attemptLogin() {
         hideError()
         viewModel.login(
-            binding.etServer.text.toString(),
+            SERVER_URL,
             binding.etUsername.text.toString(),
             binding.etPassword.text.toString()
         )

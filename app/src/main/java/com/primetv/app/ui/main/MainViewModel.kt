@@ -32,7 +32,7 @@ data class ContentRow(
 )
 
 sealed class MainState {
-    object Loading : MainState()
+    data class Loading(val message: String = "") : MainState()
     data class Success(
         val featuredItem: VodStream?,
         val rows: List<ContentRow>
@@ -44,7 +44,7 @@ class MainViewModel(private val repo: XtreamRepository) : ViewModel() {
 
     private val tmdb get() = App.instance.tmdb
 
-    private val _state = MutableLiveData<MainState>(MainState.Loading)
+    private val _state = MutableLiveData<MainState>(MainState.Loading())
     val state: LiveData<MainState> = _state
 
     private val _featuredInfo = MutableLiveData<FeaturedInfo?>()
@@ -206,9 +206,11 @@ class MainViewModel(private val repo: XtreamRepository) : ViewModel() {
     }
 
     fun loadHome() {
-        _state.value = MainState.Loading
+        val isFirstSync = repo.isFirstSync()
+        _state.value = if (isFirstSync) MainState.Loading("Sincronizando contenido...") else MainState.Loading()
         viewModelScope.launch {
             try {
+                runCatching { repo.syncIfStale() }
                 val vodCategories = runCatching { repo.getVodCategories() }.getOrElse { emptyList() }
                 val camCategoryIds = vodCategories
                     .filter { it.name?.let(::isCamCategoryName) == true }
@@ -303,7 +305,7 @@ class MainViewModel(private val repo: XtreamRepository) : ViewModel() {
     }
 
     fun loadMovies() {
-        _state.value = MainState.Loading
+        _state.value = MainState.Loading()
         viewModelScope.launch {
             try {
                 val cats = repo.getVodCategories()
@@ -337,7 +339,7 @@ class MainViewModel(private val repo: XtreamRepository) : ViewModel() {
     }
 
     fun loadSeries() {
-        _state.value = MainState.Loading
+        _state.value = MainState.Loading()
         viewModelScope.launch {
             try {
                 val cats = repo.getSeriesCategories()

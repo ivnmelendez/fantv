@@ -1,11 +1,14 @@
 package com.primetv.app.data.repository
 
+import android.util.Log
 import com.primetv.app.data.api.ApiClient
 import com.primetv.app.data.db.AppDatabase
 import com.primetv.app.data.db.entity.*
 import com.primetv.app.data.model.*
 import com.primetv.app.util.Prefs
 import com.google.gson.Gson
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.launch
 
 class XtreamRepository(private val prefs: Prefs, private val db: AppDatabase) {
 
@@ -93,6 +96,52 @@ class XtreamRepository(private val prefs: Prefs, private val db: AppDatabase) {
     suspend fun refreshLiveCategory(categoryId: String, streams: List<LiveStream>) {
         dao.deleteLiveStreamsByCategory(categoryId)
         dao.insertLiveStreams(streams.map { LiveStreamEntity.from(it) })
+    }
+
+    fun isFirstSync(): Boolean = prefs.lastVodFetchTime == 0L
+
+    // ── Daily sync ────────────────────────────────────────────────────────
+
+    suspend fun syncIfStale() = coroutineScope {
+        if (prefs.isCacheExpired(prefs.lastVodFetchTime)) launch { runCatching { syncVod() }.onFailure { Log.e("Sync", "VOD sync failed: ${it.message}") } }
+        if (prefs.isCacheExpired(prefs.lastSeriesFetchTime)) launch { runCatching { syncSeries() }.onFailure { Log.e("Sync", "Series sync failed: ${it.message}") } }
+        if (prefs.isCacheExpired(prefs.lastLiveFetchTime)) launch { runCatching { syncLive() }.onFailure { Log.e("Sync", "Live sync failed: ${it.message}") } }
+    }
+
+    private suspend fun syncVod() {
+        Log.d("Sync", "VOD sync start")
+        val cats = api.getVodCategories(apiUrl(), user(), pass())
+        dao.deleteCategories("vod")
+        dao.insertCategories(cats.mapNotNull { CategoryEntity.from(it, "vod") })
+        val streams = api.getVodStreams(apiUrl(), user(), pass())
+        dao.deleteVodStreams()
+        dao.insertVodStreams(streams.mapNotNull { runCatching { VodStreamEntity.from(it) }.getOrNull() })
+        prefs.lastVodFetchTime = System.currentTimeMillis()
+        Log.d("Sync", "VOD sync done: ${cats.size} cats, ${streams.size} streams")
+    }
+
+    private suspend fun syncSeries() {
+        Log.d("Sync", "Series sync start")
+        val cats = api.getSeriesCategories(apiUrl(), user(), pass())
+        dao.deleteCategories("series")
+        dao.insertCategories(cats.mapNotNull { CategoryEntity.from(it, "series") })
+        val series = api.getSeries(apiUrl(), user(), pass())
+        dao.deleteSeries()
+        dao.insertSeries(series.mapNotNull { runCatching { SeriesEntity.from(it) }.getOrNull() })
+        prefs.lastSeriesFetchTime = System.currentTimeMillis()
+        Log.d("Sync", "Series sync done: ${cats.size} cats, ${series.size} series")
+    }
+
+    private suspend fun syncLive() {
+        Log.d("Sync", "Live sync start")
+        val cats = api.getLiveCategories(apiUrl(), user(), pass())
+        dao.deleteCategories("live")
+        dao.insertCategories(cats.mapNotNull { CategoryEntity.from(it, "live") })
+        val streams = api.getLiveStreams(apiUrl(), user(), pass())
+        dao.deleteLiveStreams()
+        dao.insertLiveStreams(streams.map { LiveStreamEntity.from(it) })
+        prefs.lastLiveFetchTime = System.currentTimeMillis()
+        Log.d("Sync", "Live sync done: ${cats.size} cats, ${streams.size} streams")
     }
 
     // ── Stream URLs ───────────────────────────────────────────────────────

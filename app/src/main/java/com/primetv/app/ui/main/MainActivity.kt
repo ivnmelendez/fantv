@@ -95,9 +95,9 @@ class MainActivity : AppCompatActivity() {
         }
         viewModel.state.observe(this) { state ->
             when (state) {
-                is MainState.Loading -> showLoading(true)
+                is MainState.Loading -> showLoading(state.message)
                 is MainState.Success -> {
-                    showLoading(false)
+                    hideLoading()
                     featuredItem = state.featuredItem
                     bindFeatured(state.featuredItem)
                     binding.rvRows.apply {
@@ -119,7 +119,7 @@ class MainActivity : AppCompatActivity() {
                     }
                 }
                 is MainState.Error -> {
-                    showLoading(false)
+                    hideLoading()
                     android.widget.Toast.makeText(this@MainActivity, state.message, android.widget.Toast.LENGTH_LONG).show()
                 }
             }
@@ -190,7 +190,15 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun showLoading(show: Boolean) {
-        binding.loadingLayout.root.visibility = if (show) View.VISIBLE else View.GONE
+    private fun showLoading(message: String = "") {
+        binding.loadingLayout.root.visibility = View.VISIBLE
+        binding.loadingLayout.tvLoadingMessage.apply {
+            visibility = if (message.isNotEmpty()) View.VISIBLE else View.GONE
+            text = message
+        }
+    }
+
+    private fun hideLoading() {
+        binding.loadingLayout.root.visibility = View.GONE
     }
 }

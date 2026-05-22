@@ -11,8 +11,8 @@ import com.primetv.app.data.db.entity.*
 import androidx.sqlite.db.SupportSQLiteDatabase
 
 @Database(
-    entities = [CategoryEntity::class, VodStreamEntity::class, SeriesEntity::class, LiveStreamEntity::class, SeriesInfoCacheEntity::class],
-    version = 2,
+    entities = [CategoryEntity::class, VodStreamEntity::class, SeriesEntity::class, LiveStreamEntity::class, SeriesInfoCacheEntity::class, TmdbCacheEntity::class],
+    version = 3,
     exportSchema = false
 )
 @TypeConverters(Converters::class)
@@ -35,11 +35,19 @@ abstract class AppDatabase : RoomDatabase() {
             }
         }
 
+        private val MIGRATION_2_3 = object : Migration(2, 3) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL(
+                    "CREATE TABLE IF NOT EXISTS tmdb_cache (key TEXT NOT NULL PRIMARY KEY, payloadJson TEXT NOT NULL, cachedAt INTEGER NOT NULL)"
+                )
+            }
+        }
+
         @Volatile private var instance: AppDatabase? = null
 
         fun get(context: Context): AppDatabase = instance ?: synchronized(this) {
             instance ?: Room.databaseBuilder(context.applicationContext, AppDatabase::class.java, "primetv.db")
-                .addMigrations(MIGRATION_1_2)
+                .addMigrations(MIGRATION_1_2, MIGRATION_2_3)
                 .build().also { instance = it }
         }
     }

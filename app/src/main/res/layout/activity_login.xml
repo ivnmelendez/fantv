@@ -92,33 +92,6 @@
             android:layout_centerInParent="true"
             android:paddingStart="@dimen/_20sdp">
 
-            <!-- Server URL -->
-            <TextView
-                android:textSize="@dimen/font_14"
-                android:textColor="@color/app_color_3"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="@string/server_url"
-                android:layout_marginBottom="@dimen/margin_2" />
-
-            <EditText
-                android:id="@+id/et_server"
-                android:textSize="@dimen/font_16"
-                android:textColor="@color/white"
-                android:background="@drawable/selector_login_field"
-                android:layout_width="match_parent"
-                android:layout_height="@dimen/_36sdp"
-                android:paddingStart="@dimen/margin_6"
-                android:paddingEnd="@dimen/margin_6"
-                android:singleLine="true"
-                android:inputType="textUri"
-                android:hint="http://server.com:8080"
-                android:textColorHint="#66ffffff"
-                android:imeOptions="actionNext"
-                android:focusable="true"
-                android:focusableInTouchMode="true"
-                android:layout_marginBottom="@dimen/margin_10" />
-
             <!-- Username -->
             <TextView
                 android:textSize="@dimen/font_14"

@@ -11,13 +11,15 @@ class App : Application() {
         private set
     lateinit var db: AppDatabase
         private set
-    val tmdb = TmdbRepository()
+    lateinit var tmdb: TmdbRepository
+        private set
 
     override fun onCreate() {
         super.onCreate()
         instance = this
         prefs = Prefs(this)
         db = AppDatabase.get(this)
+        tmdb = TmdbRepository(db.contentDao())
     }
 
     companion object {

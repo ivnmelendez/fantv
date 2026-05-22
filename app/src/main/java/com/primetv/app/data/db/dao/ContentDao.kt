@@ -78,4 +78,14 @@ interface ContentDao {
 
     @Query("DELETE FROM live_streams WHERE categoryId = :catId")
     suspend fun deleteLiveStreamsByCategory(catId: String)
+
+    // TMDB cache
+    @Query("SELECT * FROM tmdb_cache WHERE key = :key LIMIT 1")
+    suspend fun getTmdbCache(key: String): TmdbCacheEntity?
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun upsertTmdbCache(entity: TmdbCacheEntity)
+
+    @Query("DELETE FROM tmdb_cache WHERE cachedAt < :cutoff")
+    suspend fun deleteTmdbCacheOlderThan(cutoff: Long)
 }

@@ -1,8 +1,12 @@
 package com.primetv.app.data.repository
 
 import android.util.Log
+import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
 import com.primetv.app.data.api.TmdbApi
 import com.primetv.app.data.api.TmdbResult
+import com.primetv.app.data.db.dao.ContentDao
+import com.primetv.app.data.db.entity.TmdbCacheEntity
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
 import okhttp3.OkHttpClient
@@ -16,11 +20,13 @@ import javax.net.ssl.SSLContext
 import javax.net.ssl.TrustManager
 import javax.net.ssl.X509TrustManager
 
-class TmdbRepository {
+class TmdbRepository(private val dao: ContentDao) {
 
     companion object {
         private const val API_KEY = "f010590c285895a245fc704377c7f398"
         private const val BASE_URL = "https://api.themoviedb.org/3/"
+        private const val CACHE_TTL_MS = 24L * 60 * 60 * 1000
+        private const val SEARCH_CACHE_TTL_MS = 7L * 24 * 60 * 60 * 1000
         const val IMAGE_W1280 = "https://image.tmdb.org/t/p/w1280"
 
         private val QUALITY_REGEX = Regex(
@@ -83,18 +89,50 @@ class TmdbRepository {
             .build()
     }
 
-    private val cache = HashMap<String, TmdbResult>()
+    private val searchCache = HashMap<String, TmdbResult>()
+    private val gson = Gson()
+    private val tmdbListType = object : TypeToken<List<TmdbResult>>() {}.type
+
+    private suspend fun cachedFetch(key: String, fetcher: suspend () -> List<TmdbResult>): List<TmdbResult> {
+        val now = System.currentTimeMillis()
+        val cached = dao.getTmdbCache(key)
+        if (cached != null && now - cached.cachedAt < CACHE_TTL_MS) {
+            Log.d("TMDB", "cache HIT: $key (age ${(now - cached.cachedAt) / 3600000}h)")
+            return gson.fromJson(cached.payloadJson, tmdbListType)
+        }
+        Log.d("TMDB", "cache MISS: $key — fetching API")
+        val results = fetcher()
+        if (results.isNotEmpty()) {
+            dao.upsertTmdbCache(TmdbCacheEntity(key, gson.toJson(results), now))
+            dao.deleteTmdbCacheOlderThan(now - CACHE_TTL_MS * 7)
+        }
+        return results
+    }
 
     suspend fun search(title: String, isSeries: Boolean): TmdbResult? {
         val query = cleanTitle(title)
-        val key = "$query:$isSeries"
-        cache[key]?.let { return it }
-        Log.d("TMDB", "search: '$query' isSeries=$isSeries")
+        val dbKey = "search:$query:$isSeries"
+
+        searchCache[dbKey]?.let { return it }
+
+        val now = System.currentTimeMillis()
+        val cached = dao.getTmdbCache(dbKey)
+        if (cached != null && now - cached.cachedAt < SEARCH_CACHE_TTL_MS) {
+            Log.d("TMDB", "search cache HIT: '$query'")
+            val result = gson.fromJson(cached.payloadJson, TmdbResult::class.java)
+            searchCache[dbKey] = result
+            return result
+        }
+
+        Log.d("TMDB", "search API: '$query' isSeries=$isSeries")
         return try {
             val result = if (isSeries) api.searchTv(API_KEY, query).results?.firstOrNull()
                          else api.searchMovie(API_KEY, query).results?.firstOrNull()
             Log.d("TMDB", "result: ${result?.title ?: result?.name} backdrop=${result?.backdropPath}")
-            result?.also { cache[key] = it }
+            result?.also {
+                searchCache[dbKey] = it
+                dao.upsertTmdbCache(TmdbCacheEntity(dbKey, gson.toJson(it), now))
+            }
         } catch (e: Exception) {
             Log.e("TMDB", "search failed: ${e.message}")
             null
@@ -111,21 +149,27 @@ class TmdbRepository {
 
     private fun cleanTitle(raw: String) = normalizeTitle(raw)
 
-    suspend fun fetchTrendingMovies(): List<TmdbResult> = coroutineScope {
-        val p1 = async { runCatching { api.trendingMovies(API_KEY, page = 1).results ?: emptyList() }.getOrElse { emptyList() } }
-        val p2 = async { runCatching { api.trendingMovies(API_KEY, page = 2).results ?: emptyList() }.getOrElse { emptyList() } }
-        (p1.await() + p2.await()).distinctBy { it.id }
+    suspend fun fetchTrendingMovies(): List<TmdbResult> = cachedFetch("trending_movies") {
+        coroutineScope {
+            val p1 = async { runCatching { api.trendingMovies(API_KEY, page = 1).results ?: emptyList() }.getOrElse { emptyList() } }
+            val p2 = async { runCatching { api.trendingMovies(API_KEY, page = 2).results ?: emptyList() }.getOrElse { emptyList() } }
+            (p1.await() + p2.await()).distinctBy { it.id }
+        }
     }
 
-    suspend fun fetchTrendingTv(): List<TmdbResult> = coroutineScope {
-        val p1 = async { runCatching { api.trendingTv(API_KEY, page = 1).results ?: emptyList() }.getOrElse { emptyList() } }
-        val p2 = async { runCatching { api.trendingTv(API_KEY, page = 2).results ?: emptyList() }.getOrElse { emptyList() } }
-        (p1.await() + p2.await()).distinctBy { it.id }
+    suspend fun fetchTrendingTv(): List<TmdbResult> = cachedFetch("trending_tv") {
+        coroutineScope {
+            val p1 = async { runCatching { api.trendingTv(API_KEY, page = 1).results ?: emptyList() }.getOrElse { emptyList() } }
+            val p2 = async { runCatching { api.trendingTv(API_KEY, page = 2).results ?: emptyList() }.getOrElse { emptyList() } }
+            (p1.await() + p2.await()).distinctBy { it.id }
+        }
     }
 
-    suspend fun fetchNowPlayingMovies(): List<TmdbResult> = coroutineScope {
-        val p1 = async { runCatching { api.nowPlayingMovies(API_KEY, page = 1).results ?: emptyList() }.getOrElse { emptyList() } }
-        val p2 = async { runCatching { api.nowPlayingMovies(API_KEY, page = 2).results ?: emptyList() }.getOrElse { emptyList() } }
-        (p1.await() + p2.await()).distinctBy { it.id }
+    suspend fun fetchNowPlayingMovies(): List<TmdbResult> = cachedFetch("now_playing_movies") {
+        coroutineScope {
+            val p1 = async { runCatching { api.nowPlayingMovies(API_KEY, page = 1).results ?: emptyList() }.getOrElse { emptyList() } }
+            val p2 = async { runCatching { api.nowPlayingMovies(API_KEY, page = 2).results ?: emptyList() }.getOrElse { emptyList() } }
+            (p1.await() + p2.await()).distinctBy { it.id }
+        }
     }
 }
