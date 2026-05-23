@@ -142,6 +142,17 @@ class TmdbRepository(private val dao: ContentDao) {
     fun backdropUrl(path: String?): String? =
         if (!path.isNullOrBlank()) "$IMAGE_W1280$path" else null
 
+    suspend fun getRuntime(id: Int, isSeries: Boolean): String? = try {
+        val details = if (isSeries) api.getTvDetails(id, API_KEY) else api.getMovieDetails(id, API_KEY)
+        val minutes = if (isSeries) details.episodeRunTime?.firstOrNull() else details.runtime
+        minutes?.let { "$it min" }
+    } catch (e: Exception) { null }
+
+    suspend fun getCast(id: Int, isSeries: Boolean): String? = try {
+        val credits = if (isSeries) api.getTvCredits(id, API_KEY) else api.getMovieCredits(id, API_KEY)
+        credits.cast?.sortedBy { it.order }?.take(3)?.mapNotNull { it.name }?.joinToString(", ")
+    } catch (e: Exception) { null }
+
     fun genreNames(ids: List<Int>?, isSeries: Boolean): String {
         val map = if (isSeries) TV_GENRES else MOVIE_GENRES
         return ids?.mapNotNull { map[it] }?.take(3)?.joinToString(", ") ?: ""

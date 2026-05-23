@@ -2,6 +2,7 @@ package com.primetv.app.data.api
 
 import com.google.gson.annotations.SerializedName
 import retrofit2.http.GET
+import retrofit2.http.Path
 import retrofit2.http.Query
 
 data class TmdbSearchResponse(
@@ -19,6 +20,21 @@ data class TmdbResult(
     @SerializedName("first_air_date") val firstAirDate: String?,
     @SerializedName("vote_average") val voteAverage: Double?,
     @SerializedName("genre_ids") val genreIds: List<Int>?
+)
+
+data class TmdbDetails(
+    val id: Int?,
+    val runtime: Int?,
+    @SerializedName("episode_run_time") val episodeRunTime: List<Int>?
+)
+
+data class TmdbCreditsResponse(
+    val cast: List<TmdbCastMember>?
+)
+
+data class TmdbCastMember(
+    val name: String?,
+    val order: Int?
 )
 
 interface TmdbApi {
@@ -57,4 +73,30 @@ interface TmdbApi {
         @Query("region") region: String = "MX",
         @Query("page") page: Int = 1
     ): TmdbSearchResponse
+
+    @GET("movie/{id}")
+    suspend fun getMovieDetails(
+        @Path("id") id: Int,
+        @Query("api_key") apiKey: String,
+        @Query("language") language: String = "es-MX"
+    ): TmdbDetails
+
+    @GET("tv/{id}")
+    suspend fun getTvDetails(
+        @Path("id") id: Int,
+        @Query("api_key") apiKey: String,
+        @Query("language") language: String = "es-MX"
+    ): TmdbDetails
+
+    @GET("movie/{id}/credits")
+    suspend fun getMovieCredits(
+        @Path("id") id: Int,
+        @Query("api_key") apiKey: String
+    ): TmdbCreditsResponse
+
+    @GET("tv/{id}/credits")
+    suspend fun getTvCredits(
+        @Path("id") id: Int,
+        @Query("api_key") apiKey: String
+    ): TmdbCreditsResponse
 }

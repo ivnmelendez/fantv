@@ -185,6 +185,7 @@ class MainActivity : AppCompatActivity() {
                 putExtra(EXTRA_STREAM_ID, item.streamId)
                 putExtra(EXTRA_TITLE, item.name)
                 putExtra(EXTRA_IS_SERIES, false)
+                putExtra(EXTRA_STREAM_EXT, item.containerExtension ?: "mp4")
             }
             startActivity(intent)
         }
