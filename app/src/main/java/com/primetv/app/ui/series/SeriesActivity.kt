@@ -12,6 +12,7 @@ import com.primetv.app.data.model.Episode
 import com.primetv.app.data.model.Season
 import com.primetv.app.data.repository.XtreamRepository
 import com.primetv.app.databinding.ActivitySeriesBinding
+import com.primetv.app.ui.detail.DetailActivity
 import com.primetv.app.ui.main.MainActivity
 import com.primetv.app.ui.player.PlayerActivity
 import kotlinx.coroutines.launch
@@ -29,8 +30,17 @@ class SeriesActivity : AppCompatActivity() {
         binding = ActivitySeriesBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        val seriesId = intent.getIntExtra(MainActivity.EXTRA_STREAM_ID, -1)
+        val seriesId    = intent.getIntExtra(MainActivity.EXTRA_STREAM_ID, -1)
+        val title       = intent.getStringExtra(MainActivity.EXTRA_TITLE) ?: ""
+        val backdropUrl = intent.getStringExtra(DetailActivity.EXTRA_BACKDROP_URL)
         if (seriesId == -1) { finish(); return }
+
+        binding.tvTitle.text = title
+
+        // Load backdrop immediately if passed from DetailActivity
+        if (!backdropUrl.isNullOrBlank()) {
+            Glide.with(this).load(backdropUrl).into(binding.backgroundImg)
+        }
 
         showLoading(true)
         loadSeries(seriesId)
@@ -45,14 +55,47 @@ class SeriesActivity : AppCompatActivity() {
                 val si = info.info
                 allEpisodes = info.episodes ?: emptyMap()
 
-                binding.tvTitle.text = si?.name ?: ""
+                si?.name?.takeIf { it.isNotBlank() }?.let { binding.tvTitle.text = it }
                 binding.tvDescription.text = si?.plot ?: ""
-                binding.tvRating.text = si?.rating?.let { "★ $it" } ?: ""
-                binding.tvYear.text = si?.releaseDate?.take(4) ?: ""
+                binding.tvRating.text      = si?.rating ?: ""
+                binding.tvYear.text        = si?.releaseDate?.take(4) ?: ""
 
-                Glide.with(this@SeriesActivity).load(si?.cover).into(binding.backgroundImg)
+                // Derive seasons from episodes map if the seasons list is absent
+                val seasons = info.seasons?.takeIf { it.isNotEmpty() }
+                    ?: allEpisodes.keys
+                        .mapNotNull { it.toIntOrNull() }
+                        .sorted()
+                        .map { n ->
+                            Season(
+                                airDate = null,
+                                episodeCount = allEpisodes[n.toString()]?.size,
+                                id = null,
+                                name = "Temporada $n",
+                                overview = null,
+                                seasonNumber = n,
+                                cover = null,
+                                coverBig = null
+                            )
+                        }
 
-                setupSeasons(info.seasons ?: emptyList())
+                val seasonCount = seasons.size
+                binding.tvSeasons.text = if (seasonCount == 1) "1 Temporada" else "$seasonCount Temporadas"
+
+                // Backdrop fallback to cover if not already loaded from intent
+                val passedBackdrop = intent.getStringExtra(DetailActivity.EXTRA_BACKDROP_URL)
+                if (passedBackdrop.isNullOrBlank()) {
+                    val coverUrl = si?.backdropPath?.firstOrNull()?.takeIf { it.isNotBlank() } ?: si?.cover
+                    Glide.with(this@SeriesActivity).load(coverUrl).into(binding.backgroundImg)
+                }
+
+                // Cast
+                val cast = si?.cast?.takeIf { it.isNotBlank() }
+                if (cast != null) {
+                    binding.tvActors.text = cast
+                    binding.linActors.visibility = View.VISIBLE
+                }
+
+                setupSeasons(seasons)
 
             } catch (_: Exception) {
                 showLoading(false)

@@ -3,6 +3,7 @@ package com.primetv.app.ui.series
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
 import com.primetv.app.data.model.Episode
 import com.primetv.app.databinding.ItemEpisodeBinding
 
@@ -13,9 +14,17 @@ class EpisodeAdapter(
 
     inner class VH(val binding: ItemEpisodeBinding) : RecyclerView.ViewHolder(binding.root) {
         fun bind(ep: Episode) {
-            val label = "${ep.episodeNum}. ${ep.title ?: ""}"
-            binding.tvEpisodeTitle.text = label
+            val seasonNum  = ep.season.toString().padStart(2, '0')
+            val episodeNum = ep.episodeNum.toString().padStart(2, '0')
+            binding.tvEpNum.text       = "T$seasonNum:E$episodeNum"
+            binding.tvEpisodeTitle.text   = ep.title ?: ""
+            binding.tvEpisodePlot.text    = ep.info?.plot ?: ""
             binding.tvEpisodeDuration.text = ep.info?.duration ?: ""
+
+            Glide.with(binding.ivThumbnail.context)
+                .load(ep.info?.movieImage)
+                .into(binding.ivThumbnail)
+
             binding.root.setOnClickListener { onClick(ep) }
         }
     }

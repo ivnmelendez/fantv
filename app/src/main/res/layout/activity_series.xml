@@ -1,84 +1,143 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:background="@color/app_color_1"
+    android:background="@color/black"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <!-- Background -->
+    <!-- Cinematic backdrop -->
     <ImageView
         android:id="@+id/background_img"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:scaleType="centerCrop" />
+        android:scaleType="centerCrop"
+        android:focusable="false"
+        android:clickable="false" />
 
-    <RelativeLayout
-        android:background="@color/trn_black_detail"
+    <!-- Gradient overlay -->
+    <View
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        android:layout_height="match_parent"
+        android:background="@drawable/gradient_detail_overlay" />
 
-    <!-- Content -->
+    <!-- Main content -->
     <LinearLayout
         android:orientation="vertical"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:paddingStart="@dimen/main_menu_view_width_closed"
-        android:paddingTop="@dimen/margin_6">
+        android:paddingStart="@dimen/main_menu_view_width_closed">
 
-        <!-- Program info: title, meta, description -->
+        <!-- Top info section -->
         <LinearLayout
             android:id="@+id/lin_program_info"
             android:orientation="vertical"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:paddingStart="@dimen/margin_10">
+            android:paddingStart="@dimen/margin_10"
+            android:paddingEnd="@dimen/margin_8"
+            android:paddingTop="@dimen/margin_8"
+            android:paddingBottom="@dimen/margin_6">
 
             <TextView
                 android:id="@+id/tv_title"
-                android:textSize="@dimen/font_title"
-                android:textStyle="bold"
-                android:textColor="@color/white"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:textSize="@dimen/font_detail_title"
+                android:textStyle="bold"
+                android:textColor="@color/white"
+                android:maxLines="2"
                 android:shadowColor="@color/black"
                 android:shadowDx="2"
                 android:shadowDy="2"
                 android:shadowRadius="2"
-                android:layout_marginBottom="@dimen/margin_3" />
+                android:layout_marginBottom="@dimen/margin_6" />
 
+            <!-- IMDb badge + rating + year + seasons count -->
             <LinearLayout
-                android:gravity="center_vertical"
                 android:orientation="horizontal"
-                android:layout_width="match_parent"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="@dimen/margin_3">
+                android:gravity="center_vertical"
+                android:layout_marginBottom="@dimen/margin_6">
 
                 <TextView
-                    android:id="@+id/tv_rating"
-                    android:textSize="@dimen/font_14"
-                    android:textColor="@color/white"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:text="IMDb"
+                    android:textColor="#000000"
+                    android:textSize="@dimen/font_12"
+                    android:textStyle="bold"
+                    android:background="#F5C518"
+                    android:paddingStart="@dimen/margin_3"
+                    android:paddingEnd="@dimen/margin_3"
+                    android:paddingTop="1dp"
+                    android:paddingBottom="1dp"
                     android:layout_marginEnd="@dimen/margin_6" />
 
                 <TextView
-                    android:id="@+id/tv_year"
+                    android:id="@+id/tv_rating"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
                     android:textSize="@dimen/font_14"
                     android:textColor="@color/white"
+                    android:layout_marginEnd="@dimen/margin_10" />
+
+                <TextView
+                    android:id="@+id/tv_year"
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content" />
+                    android:layout_height="wrap_content"
+                    android:textSize="@dimen/font_14"
+                    android:textColor="@color/white"
+                    android:layout_marginEnd="@dimen/margin_10" />
+
+                <TextView
+                    android:id="@+id/tv_seasons"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="@dimen/font_14"
+                    android:textColor="@color/white" />
+
             </LinearLayout>
 
             <TextView
                 android:id="@+id/tv_description"
-                android:textSize="@dimen/font_16"
-                android:textColor="@color/white"
-                android:layout_width="@dimen/_400sdp"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:maxLines="4"
-                android:layout_marginBottom="@dimen/margin_6" />
+                android:textSize="@dimen/font_14"
+                android:textColor="#CCFFFFFF"
+                android:maxLines="3"
+                android:ellipsize="end"
+                android:layout_marginBottom="@dimen/margin_4" />
+
+            <LinearLayout
+                android:id="@+id/lin_actors"
+                android:orientation="horizontal"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="@dimen/margin_3"
+                android:visibility="gone">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/detail_cast"
+                    android:textSize="@dimen/font_14"
+                    android:textColor="#AAFFFFFF"
+                    android:layout_marginEnd="@dimen/margin_3" />
+
+                <TextView
+                    android:id="@+id/tv_actors"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="@dimen/font_14"
+                    android:textColor="#CCFFFFFF"
+                    android:maxLines="1"
+                    android:ellipsize="end" />
+
+            </LinearLayout>
+
         </LinearLayout>
 
-        <!-- Seasons + Episodes -->
+        <!-- Seasons + Episodes split -->
         <LinearLayout
             android:id="@+id/lin_seasons_episodes"
             android:orientation="horizontal"
@@ -86,19 +145,20 @@
             android:layout_height="0dp"
             android:layout_weight="1">
 
-            <!-- Seasons list -->
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/rv_seasons"
                 android:layout_width="@dimen/_160sdp"
                 android:layout_height="match_parent" />
 
-            <!-- Episodes list -->
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/rv_episodes"
-                android:layout_width="@dimen/_280sdp"
+                android:layout_width="0dp"
                 android:layout_height="match_parent"
+                android:layout_weight="1"
                 android:layout_marginStart="@dimen/margin_6" />
+
         </LinearLayout>
+
     </LinearLayout>
 
     <include android:id="@+id/loadingLayout" layout="@layout/layout_loading" />

@@ -133,7 +133,7 @@ data class SeriesInfo(
     val genre: String?,
     val releaseDate: String?,
     val rating: String?,
-    @SerializedName("backdrop_path") val backdropPath: String?,
+    @SerializedName("backdrop_path") val backdropPath: List<String>?,
     @SerializedName("category_id") val categoryId: String?
 )
 
