@@ -66,18 +66,12 @@
                 android:gravity="center_vertical"
                 android:layout_marginBottom="@dimen/margin_8">
 
-                <TextView
+                <ImageView
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="IMDb"
-                    android:textColor="#000000"
-                    android:textSize="@dimen/font_12"
-                    android:textStyle="bold"
-                    android:background="#F5C518"
-                    android:paddingStart="@dimen/margin_3"
-                    android:paddingEnd="@dimen/margin_3"
-                    android:paddingTop="1dp"
-                    android:paddingBottom="1dp"
+                    android:layout_height="20dp"
+                    android:src="@drawable/imdb_logo"
+                    android:scaleType="fitCenter"
+                    android:adjustViewBounds="true"
                     android:layout_marginEnd="@dimen/margin_6" />
 
                 <TextView

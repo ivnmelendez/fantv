@@ -42,14 +42,16 @@ interface TmdbApi {
     suspend fun searchMovie(
         @Query("api_key") apiKey: String,
         @Query("query") query: String,
-        @Query("language") language: String = "es-MX"
+        @Query("language") language: String = "es-MX",
+        @Query("year") year: String? = null
     ): TmdbSearchResponse
 
     @GET("search/tv")
     suspend fun searchTv(
         @Query("api_key") apiKey: String,
         @Query("query") query: String,
-        @Query("language") language: String = "es-MX"
+        @Query("language") language: String = "es-MX",
+        @Query("first_air_date_year") year: String? = null
     ): TmdbSearchResponse
 
     @GET("trending/movie/day")

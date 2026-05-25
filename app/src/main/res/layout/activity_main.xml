@@ -103,19 +103,15 @@
                         android:orientation="horizontal"
                         android:visibility="visible">
 
-                        <!-- IMDb badge -->
-                        <TextView
+                        <!-- Rating logo -->
+                        <ImageView
                             android:id="@+id/tv_imdb_badge"
                             android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
+                            android:layout_height="22dp"
                             android:layout_marginEnd="@dimen/margin_3"
-                            android:background="#F5C518"
-                            android:paddingStart="@dimen/margin_3"
-                            android:paddingEnd="@dimen/margin_3"
-                            android:text="IMDb"
-                            android:textColor="@color/black"
-                            android:textSize="@dimen/font_14"
-                            android:textStyle="bold" />
+                            android:src="@drawable/imdb_logo"
+                            android:scaleType="fitCenter"
+                            android:adjustViewBounds="true" />
 
                         <TextView
                             android:id="@+id/tv_rating"

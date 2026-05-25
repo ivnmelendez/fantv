@@ -37,13 +37,27 @@ class TmdbRepository(private val dao: ContentDao) {
         fun extractQualityTag(title: String): String? =
             QUALITY_REGEX.find(title)?.value?.trim('(', ')', ' ')?.uppercase()
 
-        // Strip year from END only — preserves titles like "2001: A Space Odyssey"
         private val YEAR_SUFFIX_REGEX = Regex("""\s*\(?(19|20)\d{2}\)?\s*$""")
+        private val PIPE_SUFFIX_REGEX = Regex("""\s*\|.*$""")
+        private val BRACKETS_REGEX    = Regex("""\[.*?\]""")
+        private val RESOLUTION_REGEX  = Regex(
+            """\(?(4K|UHD|FHD|2160p|1080[pi]|720[pi]|480[pi])\)?""",
+            RegexOption.IGNORE_CASE
+        )
+        private val SOURCE_REGEX = Regex(
+            """\(?(BluRay|BDRip|BRRip|WEBRip|WEB[-.]DL|DVDRip|EXTENDED|UNRATED|REMASTERED|PROPER|READNFO)\)?""",
+            RegexOption.IGNORE_CASE
+        )
 
         fun normalizeTitle(raw: String): String = raw
+            .replace(PIPE_SUFFIX_REGEX, "")
+            .replace(BRACKETS_REGEX, "")
+            .replace(RESOLUTION_REGEX, "")
+            .replace(SOURCE_REGEX, "")
             .replace(QUALITY_REGEX, "")
             .replace(YEAR_SUFFIX_REGEX, "")
-            .replace(Regex("\\s{2,}"), " ")
+            .replace(Regex("""[_\-]\s*$"""), "")
+            .replace(Regex("""\s{2,}"""), " ")
             .trim()
             .lowercase()
 
@@ -111,6 +125,7 @@ class TmdbRepository(private val dao: ContentDao) {
 
     suspend fun search(title: String, isSeries: Boolean): TmdbResult? {
         val query = cleanTitle(title)
+        val year  = extractYear(title)
         val dbKey = "search:$query:$isSeries"
 
         searchCache[dbKey]?.let { return it }
@@ -124,10 +139,18 @@ class TmdbRepository(private val dao: ContentDao) {
             return result
         }
 
-        Log.d("TMDB", "search API: '$query' isSeries=$isSeries")
+        Log.d("TMDB", "search API: '$query' year=$year isSeries=$isSeries")
         return try {
-            val result = if (isSeries) api.searchTv(API_KEY, query).results?.firstOrNull()
+            // Try with year first for precision; fallback without year
+            var result = if (isSeries) api.searchTv(API_KEY, query, year = year).results?.firstOrNull()
+                         else api.searchMovie(API_KEY, query, year = year).results?.firstOrNull()
+
+            if (result == null && year != null) {
+                Log.d("TMDB", "retry without year: '$query'")
+                result = if (isSeries) api.searchTv(API_KEY, query).results?.firstOrNull()
                          else api.searchMovie(API_KEY, query).results?.firstOrNull()
+            }
+
             Log.d("TMDB", "result: ${result?.title ?: result?.name} backdrop=${result?.backdropPath}")
             result?.also {
                 searchCache[dbKey] = it
