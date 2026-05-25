@@ -103,9 +103,11 @@ class XtreamRepository(private val prefs: Prefs, private val db: AppDatabase) {
     // ── Session sync ──────────────────────────────────────────────────────
 
     @Volatile private var syncedThisSession = false
+    private val minForceSyncIntervalMs = 30 * 60 * 1000L // 30 min
 
     suspend fun syncSession() = coroutineScope {
-        val forceAll = !syncedThisSession
+        val timeSinceLastSync = System.currentTimeMillis() - prefs.lastVodFetchTime
+        val forceAll = !syncedThisSession && timeSinceLastSync > minForceSyncIntervalMs
         syncedThisSession = true
         launch {
             if (forceAll || prefs.isCacheExpired(prefs.lastVodFetchTime))
