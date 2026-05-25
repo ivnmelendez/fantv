@@ -174,14 +174,12 @@ class MainActivity : AppCompatActivity() {
     private fun onItemClick(item: VodStream) {
         if (item.containerExtension == "resume") {
             val history = watchHistoryMap[item.streamId.toString()] ?: return
-            startActivity(Intent(this, PlayerActivity::class.java).apply {
-                putExtra(PlayerActivity.EXTRA_URL, history.streamUrl)
-                putExtra(PlayerActivity.EXTRA_TITLE, history.title)
-                putExtra(PlayerActivity.EXTRA_STREAM_ID, history.streamId)
-                putExtra(PlayerActivity.EXTRA_POSTER, history.posterUrl)
-                putExtra(PlayerActivity.EXTRA_EXT, history.ext)
-                putExtra(PlayerActivity.EXTRA_POSITION, history.positionMs)
-                putExtra(PlayerActivity.EXTRA_IS_SERIES, history.isSeries)
+            startActivity(Intent(this, DetailActivity::class.java).apply {
+                putExtra(EXTRA_STREAM_ID, item.streamId)
+                putExtra(EXTRA_TITLE, history.title)
+                putExtra(EXTRA_IS_SERIES, history.isSeries)
+                putExtra(EXTRA_STREAM_ICON, item.streamIcon)
+                if (!history.isSeries) putExtra(EXTRA_STREAM_EXT, history.ext)
             })
             return
         }

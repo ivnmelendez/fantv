@@ -34,10 +34,18 @@ class PlayerActivity : AppCompatActivity() {
         binding = ActivityPlayerBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        val url      = intent.getStringExtra(EXTRA_URL) ?: run { finish(); return }
-        val position = intent.getLongExtra(EXTRA_POSITION, 0L)
+        val url           = intent.getStringExtra(EXTRA_URL) ?: run { finish(); return }
+        val intentPosition = intent.getLongExtra(EXTRA_POSITION, 0L)
+        val streamId      = intent.getStringExtra(EXTRA_STREAM_ID)
 
-        initPlayer(url, position)
+        if (intentPosition > 0L || streamId == null) {
+            initPlayer(url, intentPosition)
+        } else {
+            lifecycleScope.launch {
+                val saved = App.instance.db.contentDao().getWatchHistoryEntry(streamId)?.positionMs ?: 0L
+                initPlayer(url, saved)
+            }
+        }
     }
 
     private fun initPlayer(url: String, startPositionMs: Long = 0L) {
