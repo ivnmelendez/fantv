@@ -36,8 +36,8 @@
     <string name="action_seasons">Seasons</string>
     <string name="detail_cast">Protagonizada por:</string>
     <string name="detail_genre">Género(s):</string>
-    <string name="detail_play_primary">▶  Reproducir HD</string>
-    <string name="detail_play_secondary">▶  Reproducir Español HD</string>
+    <string name="detail_play_primary">▶  Reproducir</string>
+    <string name="detail_play_secondary">▶  Reproducir Español</string>
     <string name="detail_favorite">+  Agregar a favoritos</string>
     <string name="detail_see_episodes">▶  Ver episodios</string>
 </resources>

@@ -100,12 +100,25 @@ class XtreamRepository(private val prefs: Prefs, private val db: AppDatabase) {
 
     fun isFirstSync(): Boolean = prefs.lastVodFetchTime == 0L
 
-    // ── Daily sync ────────────────────────────────────────────────────────
+    // ── Session sync ──────────────────────────────────────────────────────
 
-    suspend fun syncIfStale() = coroutineScope {
-        if (prefs.isCacheExpired(prefs.lastVodFetchTime)) launch { runCatching { syncVod() }.onFailure { Log.e("Sync", "VOD sync failed: ${it.message}") } }
-        if (prefs.isCacheExpired(prefs.lastSeriesFetchTime)) launch { runCatching { syncSeries() }.onFailure { Log.e("Sync", "Series sync failed: ${it.message}") } }
-        if (prefs.isCacheExpired(prefs.lastLiveFetchTime)) launch { runCatching { syncLive() }.onFailure { Log.e("Sync", "Live sync failed: ${it.message}") } }
+    @Volatile private var syncedThisSession = false
+
+    suspend fun syncSession() = coroutineScope {
+        val forceAll = !syncedThisSession
+        syncedThisSession = true
+        launch {
+            if (forceAll || prefs.isCacheExpired(prefs.lastVodFetchTime))
+                runCatching { syncVod() }.onFailure { Log.e("Sync", "VOD sync failed: ${it.message}") }
+        }
+        launch {
+            if (forceAll || prefs.isCacheExpired(prefs.lastSeriesFetchTime))
+                runCatching { syncSeries() }.onFailure { Log.e("Sync", "Series sync failed: ${it.message}") }
+        }
+        launch {
+            if (forceAll || prefs.isCacheExpired(prefs.lastLiveFetchTime))
+                runCatching { syncLive() }.onFailure { Log.e("Sync", "Live sync failed: ${it.message}") }
+        }
     }
 
     private suspend fun syncVod() {

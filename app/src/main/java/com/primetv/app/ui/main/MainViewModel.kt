@@ -210,7 +210,7 @@ class MainViewModel(private val repo: XtreamRepository) : ViewModel() {
         _state.value = if (isFirstSync) MainState.Loading("Sincronizando contenido...") else MainState.Loading()
         viewModelScope.launch {
             try {
-                runCatching { repo.syncIfStale() }
+                runCatching { repo.syncSession() }
                 val vodCategories = runCatching { repo.getVodCategories() }.getOrElse { emptyList() }
                 val camCategoryIds = vodCategories
                     .filter { it.name?.let(::isCamCategoryName) == true }
@@ -305,9 +305,10 @@ class MainViewModel(private val repo: XtreamRepository) : ViewModel() {
     }
 
     fun loadMovies() {
-        _state.value = MainState.Loading()
+        _state.value = if (repo.isFirstSync()) MainState.Loading("Sincronizando contenido...") else MainState.Loading()
         viewModelScope.launch {
             try {
+                runCatching { repo.syncSession() }
                 val cats = repo.getVodCategories()
                 val filteredCats = cats.filterNot { cat -> cat.name?.let(::isCamCategoryName) == true }
                     .sortedWith(
@@ -339,9 +340,10 @@ class MainViewModel(private val repo: XtreamRepository) : ViewModel() {
     }
 
     fun loadSeries() {
-        _state.value = MainState.Loading()
+        _state.value = if (repo.isFirstSync()) MainState.Loading("Sincronizando contenido...") else MainState.Loading()
         viewModelScope.launch {
             try {
+                runCatching { repo.syncSession() }
                 val cats = repo.getSeriesCategories()
                 val allSeries = repo.getSeries()
                 val allItems = allSeries.map { s ->
