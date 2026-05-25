@@ -101,6 +101,18 @@ class DetailActivity : AppCompatActivity() {
             Toast.makeText(this, "Próximamente", Toast.LENGTH_SHORT).show()
         }
 
+        val sidStr = streamId.toString()
+        lifecycleScope.launch {
+            val inHistory = App.instance.db.contentDao().getWatchHistoryEntry(sidStr) != null
+            if (inHistory) binding.btnRemoveHistory.visibility = View.VISIBLE
+        }
+        binding.btnRemoveHistory.setOnClickListener {
+            lifecycleScope.launch {
+                App.instance.db.contentDao().deleteWatchHistory(sidStr)
+                binding.btnRemoveHistory.visibility = View.GONE
+            }
+        }
+
         lifecycleScope.launch {
             val result = tmdb.search(title, isSeries) ?: return@launch
 

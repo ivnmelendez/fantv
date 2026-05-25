@@ -86,6 +86,9 @@ interface ContentDao {
     @Query("SELECT * FROM watch_history WHERE positionMs > durationMs * 0.05 AND positionMs < durationMs * 0.90 ORDER BY watchedAt DESC LIMIT 10")
     suspend fun getWatchHistory(): List<com.primetv.app.data.db.entity.WatchHistoryEntity>
 
+    @Query("SELECT * FROM watch_history WHERE streamId = :streamId LIMIT 1")
+    suspend fun getWatchHistoryEntry(streamId: String): com.primetv.app.data.db.entity.WatchHistoryEntity?
+
     @Query("DELETE FROM watch_history WHERE streamId = :streamId")
     suspend fun deleteWatchHistory(streamId: String)
 

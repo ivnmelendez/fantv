@@ -204,7 +204,23 @@
                 android:textColor="@color/white"
                 android:background="@drawable/selector_detail_btn_secondary"
                 android:focusable="true"
-                android:clickable="true" />
+                android:clickable="true"
+                android:layout_marginBottom="@dimen/margin_4" />
+
+            <TextView
+                android:id="@+id/btn_remove_history"
+                android:layout_width="@dimen/detail_btn_width"
+                android:layout_height="@dimen/detail_btn_height"
+                android:gravity="center_vertical"
+                android:paddingStart="@dimen/margin_10"
+                android:paddingEnd="@dimen/margin_10"
+                android:text="@string/detail_remove_history"
+                android:textSize="@dimen/font_14"
+                android:textColor="#FFAAAAAA"
+                android:background="@drawable/selector_detail_btn_secondary"
+                android:focusable="true"
+                android:clickable="true"
+                android:visibility="gone" />
 
         </LinearLayout>
 

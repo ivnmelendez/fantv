@@ -75,6 +75,7 @@ class PlayerActivity : AppCompatActivity() {
         val exo = player ?: return
         val position = exo.currentPosition
         val duration = exo.duration.takeIf { it > 0 } ?: return
+        if (position < 60_000L || position < duration * 0.05) return
         lifecycleScope.launch {
             App.instance.db.contentDao().upsertWatchHistory(
                 WatchHistoryEntity(
