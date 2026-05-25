@@ -79,6 +79,16 @@ interface ContentDao {
     @Query("DELETE FROM live_streams WHERE categoryId = :catId")
     suspend fun deleteLiveStreamsByCategory(catId: String)
 
+    // Watch history
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun upsertWatchHistory(entity: com.primetv.app.data.db.entity.WatchHistoryEntity)
+
+    @Query("SELECT * FROM watch_history WHERE positionMs > durationMs * 0.05 AND positionMs < durationMs * 0.90 ORDER BY watchedAt DESC LIMIT 10")
+    suspend fun getWatchHistory(): List<com.primetv.app.data.db.entity.WatchHistoryEntity>
+
+    @Query("DELETE FROM watch_history WHERE streamId = :streamId")
+    suspend fun deleteWatchHistory(streamId: String)
+
     // TMDB cache
     @Query("SELECT * FROM tmdb_cache WHERE key = :key LIMIT 1")
     suspend fun getTmdbCache(key: String): TmdbCacheEntity?

@@ -159,9 +159,15 @@ class SeriesActivity : AppCompatActivity() {
         val id  = episode.id ?: return
         val ext = episode.containerExtension ?: "mp4"
         val url = repo.buildSeriesUrl(id, ext)
+        val posterUrl = intent.getStringExtra(MainActivity.EXTRA_STREAM_ICON)
+            ?: intent.getStringExtra(DetailActivity.EXTRA_BACKDROP_URL)
         startActivity(Intent(this, PlayerActivity::class.java).apply {
             putExtra(PlayerActivity.EXTRA_URL, url)
             putExtra(PlayerActivity.EXTRA_TITLE, episode.title ?: "Episode ${episode.episodeNum}")
+            putExtra(PlayerActivity.EXTRA_STREAM_ID, id.toString())
+            putExtra(PlayerActivity.EXTRA_POSTER, posterUrl)
+            putExtra(PlayerActivity.EXTRA_EXT, ext)
+            putExtra(PlayerActivity.EXTRA_IS_SERIES, true)
         })
     }
 

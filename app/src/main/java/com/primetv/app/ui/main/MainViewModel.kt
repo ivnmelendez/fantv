@@ -5,6 +5,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.primetv.app.App
+import com.primetv.app.data.db.entity.WatchHistoryEntity
 import com.primetv.app.data.model.Category
 import com.primetv.app.data.model.VodStream
 import com.primetv.app.data.repository.XtreamRepository
@@ -52,6 +53,9 @@ class MainViewModel(private val repo: XtreamRepository) : ViewModel() {
 
     private val _sportsRefreshed = MutableLiveData<List<VodStream>>()
     val sportsRefreshed: LiveData<List<VodStream>> = _sportsRefreshed
+
+    private val _watchHistoryMap = MutableLiveData<Map<String, WatchHistoryEntity>>(emptyMap())
+    val watchHistoryMap: LiveData<Map<String, WatchHistoryEntity>> = _watchHistoryMap
 
     private val infoCache = HashMap<Int, FeaturedInfo>()
     private val pendingFetches = HashSet<Int>()
@@ -278,7 +282,27 @@ class MainViewModel(private val repo: XtreamRepository) : ViewModel() {
                     .distinctBy { it.streamId }
                     .take(30)
 
+                val historyEntities = runCatching {
+                    App.instance.db.contentDao().getWatchHistory()
+                }.getOrElse { emptyList() }
+                val historyMap = historyEntities.associateBy { it.streamId }
+                _watchHistoryMap.postValue(historyMap)
+                val movieById = movies.associateBy { it.streamId.toString() }
+                val seriesById = series.associateBy { it.streamId.toString() }
+                val historyItems = historyEntities.map { e ->
+                    val icon = movieById[e.streamId]?.streamIcon
+                        ?: seriesById[e.streamId]?.streamIcon
+                        ?: e.posterUrl
+                    VodStream(
+                        num = 0, name = e.title, streamId = e.streamId.toIntOrNull() ?: 0,
+                        streamIcon = icon, rating = null, rating5Based = null,
+                        added = null, categoryId = "watch_history",
+                        containerExtension = "resume", customSid = null, directSource = null
+                    )
+                }
+
                 val rows = buildList {
+                    if (historyItems.isNotEmpty()) add(ContentRow("watch_history", "Seguir viendo", historyItems))
                     if (trendingMoviesRow.isNotEmpty()) add(ContentRow("home_trending_movies", "Películas en tendencia", trendingMoviesRow))
                     if (trendingSeriesRow.isNotEmpty()) add(ContentRow("home_trending_series", "Series en tendencia", trendingSeriesRow))
                     if (nowPlayingRow.isNotEmpty()) add(ContentRow("home_now_playing", "Películas en cartelera", nowPlayingRow))

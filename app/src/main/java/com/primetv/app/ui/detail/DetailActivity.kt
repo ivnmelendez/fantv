@@ -30,6 +30,7 @@ class DetailActivity : AppCompatActivity() {
     private val tmdb get() = App.instance.tmdb
 
     private var backdropUrl: String? = null
+    private var streamIcon: String? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -40,6 +41,7 @@ class DetailActivity : AppCompatActivity() {
         val title    = intent.getStringExtra(MainActivity.EXTRA_TITLE) ?: ""
         val isSeries = intent.getBooleanExtra(MainActivity.EXTRA_IS_SERIES, false)
         val ext      = intent.getStringExtra(MainActivity.EXTRA_STREAM_EXT) ?: "mp4"
+        streamIcon   = intent.getStringExtra(MainActivity.EXTRA_STREAM_ICON)
 
         if (streamId == -1) { finish(); return }
 
@@ -83,7 +85,7 @@ class DetailActivity : AppCompatActivity() {
                             val id  = firstEpisode.id ?: return@setOnClickListener
                             val epExt = firstEpisode.containerExtension ?: "mp4"
                             val url = repo.buildSeriesUrl(id, epExt)
-                            playUrl(url, firstEpisode.title ?: "T$sNum:E$eNum")
+                            playUrl(url, firstEpisode.title ?: "T$sNum:E$eNum", id.toString(), epExt, isSeries = true)
                         }
                     }
                 } catch (_: Exception) {
@@ -92,7 +94,7 @@ class DetailActivity : AppCompatActivity() {
             }
         } else {
             val vodUrl = repo.buildVodUrl(streamId, ext)
-            binding.btnPlayPrimary.setOnClickListener { playUrl(vodUrl, title) }
+            binding.btnPlayPrimary.setOnClickListener { playUrl(vodUrl, title, streamId.toString(), ext, isSeries = false) }
         }
 
         binding.btnFavorites.setOnClickListener {
@@ -139,10 +141,14 @@ class DetailActivity : AppCompatActivity() {
         }
     }
 
-    private fun playUrl(url: String, title: String) {
+    private fun playUrl(url: String, title: String, streamId: String = "", ext: String = "mp4", isSeries: Boolean = false) {
         startActivity(Intent(this, PlayerActivity::class.java).apply {
             putExtra(PlayerActivity.EXTRA_URL, url)
             putExtra(PlayerActivity.EXTRA_TITLE, title)
+            if (streamId.isNotEmpty()) putExtra(PlayerActivity.EXTRA_STREAM_ID, streamId)
+            putExtra(PlayerActivity.EXTRA_POSTER, streamIcon)
+            putExtra(PlayerActivity.EXTRA_EXT, ext)
+            putExtra(PlayerActivity.EXTRA_IS_SERIES, isSeries)
         })
     }
 
@@ -151,6 +157,7 @@ class DetailActivity : AppCompatActivity() {
             putExtra(MainActivity.EXTRA_STREAM_ID, seriesId)
             putExtra(MainActivity.EXTRA_TITLE, title)
             putExtra(EXTRA_BACKDROP_URL, backdropUrl)
+            putExtra(MainActivity.EXTRA_STREAM_ICON, streamIcon)
         })
     }
 }

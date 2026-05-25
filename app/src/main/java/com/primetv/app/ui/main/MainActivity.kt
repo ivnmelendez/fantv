@@ -28,6 +28,7 @@ class MainActivity : AppCompatActivity() {
 
     private var featuredItem: VodStream? = null
     private var rowsAdapter: RowsAdapter? = null
+    private var watchHistoryMap: Map<String, com.primetv.app.data.db.entity.WatchHistoryEntity> = emptyMap()
 
     // Menu IDs
     companion object {
@@ -39,11 +40,12 @@ class MainActivity : AppCompatActivity() {
         const val MENU_FAVS     = 5
         const val MENU_SETTINGS = 6
 
-        const val EXTRA_STREAM_ID  = "stream_id"
-        const val EXTRA_STREAM_URL = "stream_url"
-        const val EXTRA_STREAM_EXT = "stream_ext"
-        const val EXTRA_TITLE      = "title"
-        const val EXTRA_IS_SERIES  = "is_series"
+        const val EXTRA_STREAM_ID   = "stream_id"
+        const val EXTRA_STREAM_URL  = "stream_url"
+        const val EXTRA_STREAM_EXT  = "stream_ext"
+        const val EXTRA_STREAM_ICON = "stream_icon"
+        const val EXTRA_TITLE       = "title"
+        const val EXTRA_IS_SERIES   = "is_series"
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -90,6 +92,9 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun observeState() {
+        viewModel.watchHistoryMap.observe(this) { map ->
+            watchHistoryMap = map
+        }
         viewModel.sportsRefreshed.observe(this) { sports ->
             rowsAdapter?.updateRow("home_sports", sports)
         }
@@ -167,11 +172,25 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun onItemClick(item: VodStream) {
+        if (item.containerExtension == "resume") {
+            val history = watchHistoryMap[item.streamId.toString()] ?: return
+            startActivity(Intent(this, PlayerActivity::class.java).apply {
+                putExtra(PlayerActivity.EXTRA_URL, history.streamUrl)
+                putExtra(PlayerActivity.EXTRA_TITLE, history.title)
+                putExtra(PlayerActivity.EXTRA_STREAM_ID, history.streamId)
+                putExtra(PlayerActivity.EXTRA_POSTER, history.posterUrl)
+                putExtra(PlayerActivity.EXTRA_EXT, history.ext)
+                putExtra(PlayerActivity.EXTRA_POSITION, history.positionMs)
+                putExtra(PlayerActivity.EXTRA_IS_SERIES, history.isSeries)
+            })
+            return
+        }
         if (item.containerExtension == "series") {
             val intent = Intent(this, DetailActivity::class.java).apply {
                 putExtra(EXTRA_STREAM_ID, item.streamId)
                 putExtra(EXTRA_TITLE, item.name)
                 putExtra(EXTRA_IS_SERIES, true)
+                putExtra(EXTRA_STREAM_ICON, item.streamIcon)
             }
             startActivity(intent)
         } else if (item.containerExtension == "live") {
@@ -186,6 +205,7 @@ class MainActivity : AppCompatActivity() {
                 putExtra(EXTRA_TITLE, item.name)
                 putExtra(EXTRA_IS_SERIES, false)
                 putExtra(EXTRA_STREAM_EXT, item.containerExtension ?: "mp4")
+                putExtra(EXTRA_STREAM_ICON, item.streamIcon)
             }
             startActivity(intent)
         }
