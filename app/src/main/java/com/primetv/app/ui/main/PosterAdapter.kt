@@ -10,7 +10,6 @@ import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.primetv.app.R
 import com.primetv.app.data.model.VodStream
-import com.primetv.app.data.repository.TmdbRepository
 import com.primetv.app.databinding.ItemPosterBinding
 
 class PosterAdapter(
@@ -31,13 +30,7 @@ class PosterAdapter(
                 .placeholder(android.R.drawable.ic_menu_gallery)
                 .into(binding.poster)
 
-            if (item.containerExtension != "live") {
-                val qualityTag = TmdbRepository.extractQualityTag(item.name)
-                binding.tvQuality.text = qualityTag ?: ""
-                binding.tvQuality.visibility = if (qualityTag != null) View.VISIBLE else View.GONE
-            } else {
-                binding.tvQuality.visibility = View.GONE
-            }
+            binding.tvQuality.visibility = View.GONE
 
             binding.root.setOnClickListener { onClick(item) }
             binding.root.setOnFocusChangeListener { _, hasFocus ->

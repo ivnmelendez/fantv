@@ -25,7 +25,13 @@ class SeasonAdapter(
 
             binding.root.setOnClickListener { triggerSelect(this, season) }
             binding.root.setOnFocusChangeListener { _, hasFocus ->
-                if (hasFocus) triggerSelect(this, season)
+                val pos = bindingAdapterPosition
+                if (pos == RecyclerView.NO_POSITION) return@setOnFocusChangeListener
+                when {
+                    hasFocus && pos == selectedPos -> applyStyle(selected = true)
+                    hasFocus -> applyFocused()
+                    else -> applyStyle(pos == selectedPos)
+                }
             }
         }
 
@@ -40,12 +46,23 @@ class SeasonAdapter(
                 binding.tvSeasonName.alpha = 0.7f
             }
         }
+
+        private fun applyFocused() {
+            binding.root.setBackgroundColor(Color.parseColor("#55FFFFFF"))
+            binding.tvSeasonName.setTextColor(Color.parseColor("#FFFFFF"))
+            binding.tvSeasonName.alpha = 1f
+        }
     }
+
+    fun getSelectedPosition() = selectedPos
 
     private fun triggerSelect(vh: VH, season: Season) {
         val pos = vh.bindingAdapterPosition
         if (pos == RecyclerView.NO_POSITION) return
-        if (pos == selectedPos) return
+        if (pos == selectedPos) {
+            activeVH = vh
+            return
+        }
         activeVH?.applyStyle(false)
         activeVH = vh
         selectedPos = pos

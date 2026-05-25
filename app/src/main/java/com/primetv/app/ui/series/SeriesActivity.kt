@@ -2,7 +2,10 @@ package com.primetv.app.ui.series
 
 import android.content.Intent
 import android.os.Bundle
+import android.view.KeyEvent
 import android.view.View
+import android.view.ViewGroup
+import android.view.ViewTreeObserver
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -24,6 +27,22 @@ class SeriesActivity : AppCompatActivity() {
     private val repo by lazy { XtreamRepository(prefs, App.instance.db) }
 
     private var allEpisodes: Map<String, List<Episode>> = emptyMap()
+    private var seasonAdapter: SeasonAdapter? = null
+
+    private val focusGuard = ViewTreeObserver.OnGlobalFocusChangeListener { _, newFocus ->
+        if (newFocus != null && isDescendantOf(newFocus, binding.rvEpisodes)) {
+            binding.rvSeasons.descendantFocusability = ViewGroup.FOCUS_BLOCK_DESCENDANTS
+        }
+    }
+
+    private fun isDescendantOf(child: View, parent: View): Boolean {
+        var v: View? = child
+        while (v != null) {
+            if (v == parent) return true
+            v = v.parent as? View
+        }
+        return false
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -44,6 +63,12 @@ class SeriesActivity : AppCompatActivity() {
 
         showLoading(true)
         loadSeries(seriesId)
+        binding.root.viewTreeObserver.addOnGlobalFocusChangeListener(focusGuard)
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        binding.root.viewTreeObserver.removeOnGlobalFocusChangeListener(focusGuard)
     }
 
     private fun loadSeries(seriesId: Int) {
@@ -105,7 +130,7 @@ class SeriesActivity : AppCompatActivity() {
     }
 
     private fun setupSeasons(seasons: List<Season>) {
-        val seasonAdapter = SeasonAdapter(seasons) { season ->
+        seasonAdapter = SeasonAdapter(seasons) { season ->
             loadEpisodesForSeason(season.seasonNumber)
         }
         binding.rvSeasons.layoutManager = LinearLayoutManager(this)
@@ -121,8 +146,13 @@ class SeriesActivity : AppCompatActivity() {
         val episodeAdapter = EpisodeAdapter(episodes) { episode ->
             playEpisode(episode)
         }
-        binding.rvEpisodes.layoutManager = LinearLayoutManager(this)
-        binding.rvEpisodes.adapter = episodeAdapter
+        if (binding.rvEpisodes.layoutManager == null) {
+            binding.rvEpisodes.layoutManager = LinearLayoutManager(this)
+        }
+        binding.rvEpisodes.post {
+            binding.rvEpisodes.adapter = episodeAdapter
+            binding.rvEpisodes.scrollToPosition(0)
+        }
     }
 
     private fun playEpisode(episode: Episode) {
@@ -133,6 +163,21 @@ class SeriesActivity : AppCompatActivity() {
             putExtra(PlayerActivity.EXTRA_URL, url)
             putExtra(PlayerActivity.EXTRA_TITLE, episode.title ?: "Episode ${episode.episodeNum}")
         })
+    }
+
+    override fun dispatchKeyEvent(event: KeyEvent): Boolean {
+        if (event.action == KeyEvent.ACTION_DOWN &&
+            event.keyCode == KeyEvent.KEYCODE_DPAD_LEFT &&
+            binding.rvEpisodes.hasFocus()) {
+            binding.rvSeasons.descendantFocusability = ViewGroup.FOCUS_AFTER_DESCENDANTS
+            val pos = seasonAdapter?.getSelectedPosition() ?: 0
+            (binding.rvSeasons.layoutManager as? LinearLayoutManager)?.scrollToPosition(pos)
+            binding.rvSeasons.post {
+                binding.rvSeasons.findViewHolderForAdapterPosition(pos)?.itemView?.requestFocus()
+            }
+            return true
+        }
+        return super.dispatchKeyEvent(event)
     }
 
     private fun showLoading(show: Boolean) {
