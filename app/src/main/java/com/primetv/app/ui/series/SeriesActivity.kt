@@ -53,17 +53,18 @@ class SeriesActivity : AppCompatActivity() {
                 showLoading(false)
 
                 val si = info.info
-                allEpisodes = info.episodes ?: emptyMap()
+                allEpisodes = (info.episodes ?: emptyMap()).filterKeys { it != "0" }
 
                 si?.name?.takeIf { it.isNotBlank() }?.let { binding.tvTitle.text = it }
                 binding.tvDescription.text = si?.plot ?: ""
                 binding.tvRating.text      = si?.rating ?: ""
                 binding.tvYear.text        = si?.releaseDate?.take(4) ?: ""
 
-                // Derive seasons from episodes map if the seasons list is absent
-                val seasons = info.seasons?.takeIf { it.isNotEmpty() }
+                // Derive seasons from episodes map if the seasons list is absent; skip season 0 (Especiales)
+                val seasons = info.seasons?.filter { it.seasonNumber != 0 }?.takeIf { it.isNotEmpty() }
                     ?: allEpisodes.keys
                         .mapNotNull { it.toIntOrNull() }
+                        .filter { it != 0 }
                         .sorted()
                         .map { n ->
                             Season(

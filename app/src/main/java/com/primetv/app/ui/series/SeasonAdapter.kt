@@ -18,6 +18,14 @@ class SeasonAdapter(
     inner class VH(val binding: ItemSeasonBinding) : RecyclerView.ViewHolder(binding.root) {
         fun bind(season: Season, selected: Boolean) {
             binding.tvSeasonName.text = season.name ?: "Temporada ${season.seasonNumber}"
+            applyStyle(selected)
+            binding.root.setOnClickListener { select(season) }
+            binding.root.setOnFocusChangeListener { _, hasFocus ->
+                if (hasFocus) select(season)
+            }
+        }
+
+        private fun applyStyle(selected: Boolean) {
             if (selected) {
                 binding.root.setBackgroundResource(R.drawable.bg_season_selected)
                 binding.tvSeasonName.setTextColor(Color.parseColor("#1A1A1A"))
@@ -27,13 +35,16 @@ class SeasonAdapter(
                 binding.tvSeasonName.setTextColor(Color.parseColor("#FFFFFF"))
                 binding.tvSeasonName.alpha = 0.7f
             }
-            binding.root.setOnClickListener {
-                val prev = selectedPos
-                selectedPos = adapterPosition
-                notifyItemChanged(prev)
-                notifyItemChanged(selectedPos)
-                onClick(season)
-            }
+        }
+
+        private fun select(season: Season) {
+            val pos = bindingAdapterPosition
+            if (pos == RecyclerView.NO_POSITION) return
+            val prev = selectedPos
+            selectedPos = pos
+            notifyItemChanged(prev)
+            notifyItemChanged(selectedPos)
+            onClick(season)
         }
     }
 

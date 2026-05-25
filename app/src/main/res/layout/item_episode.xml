@@ -5,7 +5,8 @@
     android:focusableInTouchMode="true"
     android:layout_width="match_parent"
     android:layout_height="@dimen/_80sdp"
-    android:layout_marginBottom="@dimen/margin_4">
+    android:layout_marginBottom="@dimen/margin_4"
+    android:foreground="@drawable/selector_poster_focus">
 
     <!-- Thumbnail with episode label overlay -->
     <FrameLayout
