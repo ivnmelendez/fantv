@@ -37,10 +37,11 @@ class TmdbRepository(private val dao: ContentDao) {
         fun extractQualityTag(title: String): String? =
             QUALITY_REGEX.find(title)?.value?.trim('(', ')', ' ')?.uppercase()
 
-        private val YEAR_SUFFIX_REGEX = Regex("""\s*\(?(19|20)\d{2}\)?\s*$""")
-        private val PIPE_SUFFIX_REGEX = Regex("""\s*\|.*$""")
-        private val BRACKETS_REGEX    = Regex("""\[.*?\]""")
-        private val RESOLUTION_REGEX  = Regex(
+        private val YEAR_SUFFIX_REGEX  = Regex("""\s*\(?(19|20)\d{2}\)?\s*$""")
+        private val PIPE_PREFIX_REGEX  = Regex("""^[A-Z]{1,5}\s*\|\s*""")
+        private val PIPE_SUFFIX_REGEX  = Regex("""\s*\|.*$""")
+        private val BRACKETS_REGEX     = Regex("""\[.*?\]""")
+        private val RESOLUTION_REGEX   = Regex(
             """\(?(4K|UHD|FHD|2160p|1080[pi]|720[pi]|480[pi])\)?""",
             RegexOption.IGNORE_CASE
         )
@@ -50,6 +51,7 @@ class TmdbRepository(private val dao: ContentDao) {
         )
 
         fun normalizeTitle(raw: String): String = raw
+            .let { if (PIPE_PREFIX_REGEX.containsMatchIn(it)) it.replace(PIPE_PREFIX_REGEX, "") else it }
             .replace(PIPE_SUFFIX_REGEX, "")
             .replace(BRACKETS_REGEX, "")
             .replace(RESOLUTION_REGEX, "")

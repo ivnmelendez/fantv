@@ -290,8 +290,9 @@ class MainViewModel(private val repo: XtreamRepository) : ViewModel() {
                 val movieById = movies.associateBy { it.streamId.toString() }
                 val seriesById = series.associateBy { it.streamId.toString() }
                 val historyItems = historyEntities.map { e ->
-                    val icon = movieById[e.streamId]?.streamIcon
-                        ?: seriesById[e.streamId]?.streamIcon
+                    val lookupId = e.seriesId ?: e.streamId
+                    val icon = movieById[lookupId]?.streamIcon
+                        ?: seriesById[lookupId]?.streamIcon
                         ?: e.posterUrl
                     VodStream(
                         num = 0, name = e.title, streamId = e.streamId.toIntOrNull() ?: 0,

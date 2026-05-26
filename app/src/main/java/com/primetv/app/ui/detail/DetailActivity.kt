@@ -31,6 +31,7 @@ class DetailActivity : AppCompatActivity() {
 
     private var backdropUrl: String? = null
     private var streamIcon: String? = null
+    private var resumeEpisodeId: String? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -41,20 +42,35 @@ class DetailActivity : AppCompatActivity() {
         val title    = intent.getStringExtra(MainActivity.EXTRA_TITLE) ?: ""
         val isSeries = intent.getBooleanExtra(MainActivity.EXTRA_IS_SERIES, false)
         val ext      = intent.getStringExtra(MainActivity.EXTRA_STREAM_EXT) ?: "mp4"
-        streamIcon   = intent.getStringExtra(MainActivity.EXTRA_STREAM_ICON)
+        streamIcon      = intent.getStringExtra(MainActivity.EXTRA_STREAM_ICON)
+        resumeEpisodeId = intent.getStringExtra(MainActivity.EXTRA_RESUME_EPISODE_ID)
 
         if (streamId == -1) { finish(); return }
 
         binding.tvTitle.text = title
 
         if (isSeries) {
-            // Primary button: play first episode; secondary: open seasons/episodes browser
             binding.btnPlayPrimary.text = getString(R.string.detail_play_primary)
-            binding.btnPlayPrimary.setOnClickListener { openSeries(streamId, title) }
-
             binding.btnPlaySecondary.text = getString(R.string.detail_see_seasons)
             binding.btnPlaySecondary.visibility = View.VISIBLE
             binding.btnPlaySecondary.setOnClickListener { openSeries(streamId, title) }
+
+            val epId = resumeEpisodeId
+            if (epId != null) {
+                lifecycleScope.launch {
+                    val entry = App.instance.db.contentDao().getWatchHistoryEntry(epId)
+                    if (entry != null) {
+                        binding.btnPlayPrimary.text = getString(R.string.detail_continue)
+                        binding.btnPlayPrimary.setOnClickListener {
+                            playUrl(entry.streamUrl, title, epId, entry.ext, isSeries = true, seriesId = streamId.toString())
+                        }
+                    } else {
+                        binding.btnPlayPrimary.setOnClickListener { openSeries(streamId, title) }
+                    }
+                }
+            } else {
+                binding.btnPlayPrimary.setOnClickListener { openSeries(streamId, title) }
+            }
 
             // Load series info to get episode count and first episode for direct play
             lifecycleScope.launch {
@@ -77,7 +93,7 @@ class DetailActivity : AppCompatActivity() {
                         ?.let { allEpisodes[it] }
                         ?.minByOrNull { it.episodeNum }
 
-                    if (firstEpisode != null) {
+                    if (firstEpisode != null && resumeEpisodeId == null) {
                         val sNum = firstEpisode.season.toString().padStart(2, '0')
                         val eNum = firstEpisode.episodeNum.toString().padStart(2, '0')
                         binding.btnPlayPrimary.text = "▶  Reproducir T$sNum:E$eNum"
@@ -85,7 +101,7 @@ class DetailActivity : AppCompatActivity() {
                             val id  = firstEpisode.id ?: return@setOnClickListener
                             val epExt = firstEpisode.containerExtension ?: "mp4"
                             val url = repo.buildSeriesUrl(id, epExt)
-                            playUrl(url, firstEpisode.title ?: "T$sNum:E$eNum", id.toString(), epExt, isSeries = true)
+                            playUrl(url, firstEpisode.title ?: "T$sNum:E$eNum", id.toString(), epExt, isSeries = true, seriesId = streamId.toString())
                         }
                     }
                 } catch (_: Exception) {
@@ -153,7 +169,7 @@ class DetailActivity : AppCompatActivity() {
         }
     }
 
-    private fun playUrl(url: String, title: String, streamId: String = "", ext: String = "mp4", isSeries: Boolean = false) {
+    private fun playUrl(url: String, title: String, streamId: String = "", ext: String = "mp4", isSeries: Boolean = false, seriesId: String? = null) {
         startActivity(Intent(this, PlayerActivity::class.java).apply {
             putExtra(PlayerActivity.EXTRA_URL, url)
             putExtra(PlayerActivity.EXTRA_TITLE, title)
@@ -161,6 +177,8 @@ class DetailActivity : AppCompatActivity() {
             putExtra(PlayerActivity.EXTRA_POSTER, streamIcon)
             putExtra(PlayerActivity.EXTRA_EXT, ext)
             putExtra(PlayerActivity.EXTRA_IS_SERIES, isSeries)
+            seriesId?.let { putExtra(PlayerActivity.EXTRA_SERIES_ID, it) }
+            if (isSeries) putExtra(PlayerActivity.EXTRA_SERIES_TITLE, title)
         })
     }
 
@@ -170,6 +188,7 @@ class DetailActivity : AppCompatActivity() {
             putExtra(MainActivity.EXTRA_TITLE, title)
             putExtra(EXTRA_BACKDROP_URL, backdropUrl)
             putExtra(MainActivity.EXTRA_STREAM_ICON, streamIcon)
+            resumeEpisodeId?.let { putExtra(MainActivity.EXTRA_RESUME_EPISODE_ID, it) }
         })
     }
 }

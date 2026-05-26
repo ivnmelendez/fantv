@@ -28,6 +28,9 @@ class SeriesActivity : AppCompatActivity() {
 
     private var allEpisodes: Map<String, List<Episode>> = emptyMap()
     private var seasonAdapter: SeasonAdapter? = null
+    private var seriesId: Int = -1
+    private var title: String = ""
+    private var resumeEpisodeId: String? = null
 
     private val focusGuard = ViewTreeObserver.OnGlobalFocusChangeListener { _, newFocus ->
         if (newFocus != null && isDescendantOf(newFocus, binding.rvEpisodes)) {
@@ -49,8 +52,9 @@ class SeriesActivity : AppCompatActivity() {
         binding = ActivitySeriesBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        val seriesId    = intent.getIntExtra(MainActivity.EXTRA_STREAM_ID, -1)
-        val title       = intent.getStringExtra(MainActivity.EXTRA_TITLE) ?: ""
+        seriesId        = intent.getIntExtra(MainActivity.EXTRA_STREAM_ID, -1)
+        title           = intent.getStringExtra(MainActivity.EXTRA_TITLE) ?: ""
+        resumeEpisodeId = intent.getStringExtra(MainActivity.EXTRA_RESUME_EPISODE_ID)
         val backdropUrl = intent.getStringExtra(DetailActivity.EXTRA_BACKDROP_URL)
         if (seriesId == -1) { finish(); return }
 
@@ -165,6 +169,8 @@ class SeriesActivity : AppCompatActivity() {
             putExtra(PlayerActivity.EXTRA_URL, url)
             putExtra(PlayerActivity.EXTRA_TITLE, episode.title ?: "Episode ${episode.episodeNum}")
             putExtra(PlayerActivity.EXTRA_STREAM_ID, id.toString())
+            putExtra(PlayerActivity.EXTRA_SERIES_ID, seriesId.toString())
+            putExtra(PlayerActivity.EXTRA_SERIES_TITLE, title)
             putExtra(PlayerActivity.EXTRA_POSTER, posterUrl)
             putExtra(PlayerActivity.EXTRA_EXT, ext)
             putExtra(PlayerActivity.EXTRA_IS_SERIES, true)

@@ -19,13 +19,15 @@ class PlayerActivity : AppCompatActivity() {
     private var player: ExoPlayer? = null
 
     companion object {
-        const val EXTRA_URL       = "stream_url"
-        const val EXTRA_TITLE     = "title"
-        const val EXTRA_STREAM_ID = "stream_id"
-        const val EXTRA_POSTER    = "poster_url"
-        const val EXTRA_EXT       = "stream_ext"
-        const val EXTRA_POSITION  = "start_position_ms"
-        const val EXTRA_IS_SERIES = "is_series"
+        const val EXTRA_URL         = "stream_url"
+        const val EXTRA_TITLE       = "title"
+        const val EXTRA_STREAM_ID   = "stream_id"
+        const val EXTRA_POSTER      = "poster_url"
+        const val EXTRA_EXT         = "stream_ext"
+        const val EXTRA_POSITION    = "start_position_ms"
+        const val EXTRA_IS_SERIES   = "is_series"
+        const val EXTRA_SERIES_ID   = "series_id"
+        const val EXTRA_SERIES_TITLE = "series_title"
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -84,18 +86,22 @@ class PlayerActivity : AppCompatActivity() {
         val position = exo.currentPosition
         val duration = exo.duration.takeIf { it > 0 } ?: return
         if (position < 60_000L || position < duration * 0.05) return
+        val seriesId = intent.getStringExtra(EXTRA_SERIES_ID)
+        val displayTitle = intent.getStringExtra(EXTRA_SERIES_TITLE)
+            ?: intent.getStringExtra(EXTRA_TITLE) ?: ""
         lifecycleScope.launch {
             App.instance.db.contentDao().upsertWatchHistory(
                 WatchHistoryEntity(
                     streamId  = streamId,
-                    title     = intent.getStringExtra(EXTRA_TITLE) ?: "",
+                    title     = displayTitle,
                     posterUrl = intent.getStringExtra(EXTRA_POSTER),
                     streamUrl = intent.getStringExtra(EXTRA_URL) ?: return@launch,
                     ext       = intent.getStringExtra(EXTRA_EXT) ?: "mp4",
                     positionMs = position,
                     durationMs = duration,
                     isSeries  = intent.getBooleanExtra(EXTRA_IS_SERIES, false),
-                    watchedAt = System.currentTimeMillis()
+                    watchedAt = System.currentTimeMillis(),
+                    seriesId  = seriesId
                 )
             )
         }

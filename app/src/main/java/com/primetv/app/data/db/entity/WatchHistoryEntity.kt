@@ -13,5 +13,6 @@ data class WatchHistoryEntity(
     val positionMs: Long,
     val durationMs: Long,
     val isSeries: Boolean,
-    val watchedAt: Long
+    val watchedAt: Long,
+    val seriesId: String? = null
 )

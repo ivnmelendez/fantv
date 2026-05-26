@@ -83,7 +83,18 @@ interface ContentDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun upsertWatchHistory(entity: com.primetv.app.data.db.entity.WatchHistoryEntity)
 
-    @Query("SELECT * FROM watch_history WHERE positionMs > durationMs * 0.05 AND positionMs < durationMs * 0.90 ORDER BY watchedAt DESC LIMIT 10")
+    @Query("""
+        SELECT w.* FROM watch_history w
+        WHERE w.positionMs > w.durationMs * 0.05
+          AND w.positionMs < w.durationMs * 0.90
+          AND w.watchedAt = (
+              SELECT MAX(w2.watchedAt) FROM watch_history w2
+              WHERE COALESCE(w2.seriesId, w2.streamId) = COALESCE(w.seriesId, w.streamId)
+                AND w2.positionMs > w2.durationMs * 0.05
+                AND w2.positionMs < w2.durationMs * 0.90
+          )
+        ORDER BY w.watchedAt DESC LIMIT 10
+    """)
     suspend fun getWatchHistory(): List<com.primetv.app.data.db.entity.WatchHistoryEntity>
 
     @Query("SELECT * FROM watch_history WHERE streamId = :streamId LIMIT 1")

@@ -40,12 +40,13 @@ class MainActivity : AppCompatActivity() {
         const val MENU_FAVS     = 5
         const val MENU_SETTINGS = 6
 
-        const val EXTRA_STREAM_ID   = "stream_id"
-        const val EXTRA_STREAM_URL  = "stream_url"
-        const val EXTRA_STREAM_EXT  = "stream_ext"
-        const val EXTRA_STREAM_ICON = "stream_icon"
-        const val EXTRA_TITLE       = "title"
-        const val EXTRA_IS_SERIES   = "is_series"
+        const val EXTRA_STREAM_ID         = "stream_id"
+        const val EXTRA_STREAM_URL        = "stream_url"
+        const val EXTRA_STREAM_EXT        = "stream_ext"
+        const val EXTRA_STREAM_ICON       = "stream_icon"
+        const val EXTRA_TITLE             = "title"
+        const val EXTRA_IS_SERIES         = "is_series"
+        const val EXTRA_RESUME_EPISODE_ID = "resume_episode_id"
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -174,12 +175,14 @@ class MainActivity : AppCompatActivity() {
     private fun onItemClick(item: VodStream) {
         if (item.containerExtension == "resume") {
             val history = watchHistoryMap[item.streamId.toString()] ?: return
+            val detailStreamId = history.seriesId?.toIntOrNull() ?: item.streamId
             startActivity(Intent(this, DetailActivity::class.java).apply {
-                putExtra(EXTRA_STREAM_ID, item.streamId)
+                putExtra(EXTRA_STREAM_ID, detailStreamId)
                 putExtra(EXTRA_TITLE, history.title)
                 putExtra(EXTRA_IS_SERIES, history.isSeries)
                 putExtra(EXTRA_STREAM_ICON, item.streamIcon)
                 if (!history.isSeries) putExtra(EXTRA_STREAM_EXT, history.ext)
+                if (history.isSeries) putExtra(EXTRA_RESUME_EPISODE_ID, history.streamId)
             })
             return
         }
