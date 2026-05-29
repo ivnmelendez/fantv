@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/black"
+    android:orientation="horizontal">
+
+    <!-- Left panel: keyboard + categories -->
+    <LinearLayout
+        android:layout_width="@dimen/_190sdp"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:paddingTop="@dimen/margin_8"
+        android:paddingStart="@dimen/margin_6"
+        android:paddingEnd="@dimen/margin_6">
+
+        <!-- Query display -->
+        <TextView
+            android:id="@+id/tv_query"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/_22sdp"
+            android:textColor="@color/white"
+            android:textSize="@dimen/font_16"
+            android:textStyle="bold"
+            android:hint="Buscar..."
+            android:textColorHint="@color/gray"
+            android:maxLines="1"
+            android:ellipsize="start"
+            android:gravity="center_vertical"
+            android:paddingStart="@dimen/margin_4"
+            android:paddingEnd="@dimen/margin_4"
+            android:layout_marginBottom="@dimen/margin_6" />
+
+        <!-- Keyboard -->
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rv_keyboard"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:descendantFocusability="afterDescendants"
+            android:clipChildren="false" />
+
+        <!-- Categories label -->
+        <TextView
+            android:id="@+id/tv_categories_label"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Categorías"
+            android:textColor="@color/gray"
+            android:textSize="@dimen/font_12"
+            android:paddingStart="@dimen/margin_4"
+            android:paddingTop="@dimen/margin_6"
+            android:paddingBottom="@dimen/margin_4" />
+
+        <!-- Categories list -->
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rv_categories"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:descendantFocusability="afterDescendants" />
+
+    </LinearLayout>
+
+    <!-- Right panel: results grid -->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rv_results"
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_weight="1"
+        android:visibility="gone"
+        android:paddingTop="@dimen/margin_8"
+        android:paddingStart="@dimen/margin_6"
+        android:clipToPadding="false"
+        android:descendantFocusability="afterDescendants" />
+
+</LinearLayout>

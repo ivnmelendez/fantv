@@ -93,7 +93,8 @@ class MainActivity : AppCompatActivity() {
             MENU_MOVIES -> viewModel.loadMovies()
             MENU_SERIES -> viewModel.loadSeries()
             MENU_LIVE -> startActivity(Intent(this, LiveActivity::class.java))
-            else -> { /* TODO: search, favorites, settings */ }
+            MENU_SEARCH -> startActivity(Intent(this, com.primetv.app.ui.search.SearchActivity::class.java))
+            else -> { /* TODO: favorites, settings */ }
         }
     }
 

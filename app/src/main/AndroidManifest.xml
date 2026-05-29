@@ -58,5 +58,10 @@
             android:exported="true"
             android:screenOrientation="landscape" />
 
+        <activity
+            android:name=".ui.search.SearchActivity"
+            android:exported="false"
+            android:screenOrientation="landscape" />
+
     </application>
 </manifest>

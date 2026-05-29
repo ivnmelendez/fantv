@@ -29,6 +29,12 @@ interface ContentDao {
     @Query("DELETE FROM vod_streams")
     suspend fun deleteVodStreams()
 
+    @Query("SELECT * FROM vod_streams WHERE name LIKE '%' || :q || '%' ORDER BY added DESC LIMIT 60")
+    suspend fun searchVodStreams(q: String): List<VodStreamEntity>
+
+    @Query("SELECT * FROM series WHERE name LIKE '%' || :q || '%' ORDER BY lastModified DESC LIMIT 60")
+    suspend fun searchSeries(q: String): List<SeriesEntity>
+
     // Series
     @Query("SELECT * FROM series")
     suspend fun getSeries(): List<SeriesEntity>

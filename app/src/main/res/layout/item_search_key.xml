@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TextView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/tv_key"
+    android:layout_width="match_parent"
+    android:layout_height="@dimen/_22sdp"
+    android:gravity="center"
+    android:focusable="true"
+    android:focusableInTouchMode="true"
+    android:textColor="@color/white"
+    android:textSize="@dimen/font_14"
+    android:textStyle="bold"
+    android:background="@drawable/selector_search_key" />
