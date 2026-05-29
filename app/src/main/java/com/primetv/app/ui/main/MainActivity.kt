@@ -29,6 +29,7 @@ class MainActivity : AppCompatActivity() {
     private var featuredItem: VodStream? = null
     private var rowsAdapter: RowsAdapter? = null
     private var watchHistoryMap: Map<String, com.primetv.app.data.db.entity.WatchHistoryEntity> = emptyMap()
+    private var menuAdapter: MenuAdapter? = null
 
     // Menu IDs
     companion object {
@@ -64,6 +65,7 @@ class MainActivity : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
+        menuAdapter?.selectIndex(prefs.activeMenuIndex.coerceIn(MENU_HOME, MENU_SERIES))
         if (viewModel.state.value is MainState.Success) {
             viewModel.reloadWatchHistory()
         } else {
@@ -82,13 +84,13 @@ class MainActivity : AppCompatActivity() {
             MenuItem(MENU_SETTINGS, getString(R.string.nav_settings), R.drawable.ic_nav_settings),
         )
 
-        val menuAdapter = MenuAdapter(menuItems) { menuId ->
+        menuAdapter = MenuAdapter(menuItems) { menuId ->
             if (menuId in MENU_HOME..MENU_SERIES) prefs.activeMenuIndex = menuId
             loadMenu(menuId)
         }
 
         binding.menuLayout.menuGrid.adapter = menuAdapter
-        menuAdapter.selectIndex(prefs.activeMenuIndex.coerceIn(MENU_HOME, MENU_SERIES))
+        menuAdapter!!.selectIndex(prefs.activeMenuIndex.coerceIn(MENU_HOME, MENU_SERIES))
     }
 
     private fun loadMenu(menuId: Int) {
