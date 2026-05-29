@@ -59,7 +59,7 @@ class MainActivity : AppCompatActivity() {
 
         setupMenu()
         observeState()
-        loadMenu(prefs.activeMenuIndex)
+        loadMenu(prefs.activeMenuIndex.coerceIn(MENU_HOME, MENU_SERIES))
     }
 
     override fun onResume() {
@@ -84,7 +84,7 @@ class MainActivity : AppCompatActivity() {
         }
 
         binding.menuLayout.menuGrid.adapter = menuAdapter
-        menuAdapter.selectIndex(prefs.activeMenuIndex.coerceIn(0, menuItems.lastIndex))
+        menuAdapter.selectIndex(prefs.activeMenuIndex.coerceIn(MENU_HOME, MENU_SERIES))
     }
 
     private fun loadMenu(menuId: Int) {
