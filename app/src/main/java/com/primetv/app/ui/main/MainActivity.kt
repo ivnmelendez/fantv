@@ -79,7 +79,7 @@ class MainActivity : AppCompatActivity() {
         )
 
         val menuAdapter = MenuAdapter(menuItems) { menuId ->
-            prefs.activeMenuIndex = menuId
+            if (menuId in MENU_HOME..MENU_SERIES) prefs.activeMenuIndex = menuId
             loadMenu(menuId)
         }
 
