@@ -6,7 +6,6 @@ import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.GridLayoutManager
-import androidx.recyclerview.widget.LinearLayoutManager
 import com.primetv.app.App
 import com.primetv.app.data.db.entity.SeriesEntity
 import com.primetv.app.data.db.entity.VodStreamEntity
@@ -36,7 +35,6 @@ class SearchActivity : AppCompatActivity() {
 
         setupKeyboard()
         setupResults()
-        loadCategories()
     }
 
     private fun setupKeyboard() {
@@ -69,22 +67,6 @@ class SearchActivity : AppCompatActivity() {
         binding.rvResults.layoutManager = GridLayoutManager(this, 5)
         binding.rvResults.adapter = resultsAdapter
         binding.rvResults.itemAnimator = null
-    }
-
-    private fun loadCategories() {
-        lifecycleScope.launch {
-            val cats = App.instance.db.contentDao().getCategories("vod") +
-                       App.instance.db.contentDao().getCategories("series")
-            val names = cats.map { it.name }.filter { it.isNotBlank() }.distinct().sorted()
-            val catAdapter = SearchCategoryAdapter(names) { name ->
-                query.clear()
-                query.append(name)
-                binding.tvQuery.text = name
-                scheduleSearch(name)
-            }
-            binding.rvCategories.layoutManager = LinearLayoutManager(this@SearchActivity)
-            binding.rvCategories.adapter = catAdapter
-        }
     }
 
     private fun scheduleSearch(q: String) {
