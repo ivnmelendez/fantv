@@ -7,14 +7,13 @@
     android:gravity="center"
     android:paddingStart="@dimen/main_menu_view_width_closed">
 
-    <TextView
-        android:layout_width="wrap_content"
+    <ImageView
+        android:layout_width="@dimen/_220sdp"
         android:layout_height="wrap_content"
-        android:text="FanTV"
-        android:textColor="@color/white"
-        android:textSize="@dimen/font_title_feat"
-        android:textStyle="bold"
-        android:layout_marginBottom="@dimen/margin_8" />
+        android:src="@drawable/fantv_logo"
+        android:scaleType="fitCenter"
+        android:adjustViewBounds="true"
+        android:layout_marginBottom="@dimen/margin_10" />
 
     <TextView
         android:id="@+id/tv_version"
