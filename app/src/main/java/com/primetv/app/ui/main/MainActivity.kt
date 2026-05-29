@@ -100,7 +100,8 @@ class MainActivity : AppCompatActivity() {
             MENU_SERIES -> viewModel.loadSeries()
             MENU_LIVE -> startActivity(Intent(this, LiveActivity::class.java))
             MENU_SEARCH -> startActivity(Intent(this, com.primetv.app.ui.search.SearchActivity::class.java))
-            else -> { /* TODO: favorites, settings */ }
+            MENU_FAVS -> startActivity(Intent(this, com.primetv.app.ui.favorites.FavoritesActivity::class.java))
+            else -> { /* settings */ }
         }
     }
 

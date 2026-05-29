@@ -124,4 +124,17 @@ interface ContentDao {
 
     @Query("DELETE FROM tmdb_cache WHERE cachedAt < :cutoff")
     suspend fun deleteTmdbCacheOlderThan(cutoff: Long)
+
+    // Favorites
+    @Query("SELECT * FROM favorites ORDER BY addedAt DESC")
+    suspend fun getFavorites(): List<FavoriteEntity>
+
+    @Query("SELECT * FROM favorites WHERE streamId = :streamId LIMIT 1")
+    suspend fun getFavorite(streamId: String): FavoriteEntity?
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun addFavorite(entity: FavoriteEntity)
+
+    @Query("DELETE FROM favorites WHERE streamId = :streamId")
+    suspend fun removeFavorite(streamId: String)
 }

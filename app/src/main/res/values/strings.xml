@@ -43,4 +43,7 @@
     <string name="detail_see_seasons">⊞  Temporadas y Episodios</string>
     <string name="detail_remove_history">✕  Quitar de historial</string>
     <string name="detail_continue">▶  Continuar</string>
+    <string name="detail_remove_favorite">★  Quitar de favoritos</string>
+    <string name="detail_add_favorite">☆  Agregar a favoritos</string>
+    <string name="favorites_empty">Sin favoritos aún</string>
 </resources>

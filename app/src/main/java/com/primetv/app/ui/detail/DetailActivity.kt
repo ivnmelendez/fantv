@@ -3,7 +3,6 @@ package com.primetv.app.ui.detail
 import android.content.Intent
 import android.os.Bundle
 import android.view.View
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import com.bumptech.glide.Glide
@@ -113,8 +112,30 @@ class DetailActivity : AppCompatActivity() {
             binding.btnPlayPrimary.setOnClickListener { playUrl(vodUrl, title, streamId.toString(), ext, isSeries = false) }
         }
 
+        val favId = streamId.toString()
+        lifecycleScope.launch {
+            val inFav = App.instance.db.contentDao().getFavorite(favId) != null
+            binding.btnFavorites.text = getString(if (inFav) R.string.detail_remove_favorite else R.string.detail_add_favorite)
+        }
         binding.btnFavorites.setOnClickListener {
-            Toast.makeText(this, "Próximamente", Toast.LENGTH_SHORT).show()
+            lifecycleScope.launch {
+                val dao = App.instance.db.contentDao()
+                if (dao.getFavorite(favId) != null) {
+                    dao.removeFavorite(favId)
+                    binding.btnFavorites.text = getString(R.string.detail_add_favorite)
+                } else {
+                    dao.addFavorite(
+                        com.primetv.app.data.db.entity.FavoriteEntity(
+                            streamId = favId,
+                            title = title,
+                            posterUrl = streamIcon,
+                            isSeries = isSeries,
+                            ext = if (isSeries) "series" else ext
+                        )
+                    )
+                    binding.btnFavorites.text = getString(R.string.detail_remove_favorite)
+                }
+            }
         }
 
         val sidStr = streamId.toString()

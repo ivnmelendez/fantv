@@ -63,5 +63,10 @@
             android:exported="false"
             android:screenOrientation="landscape" />
 
+        <activity
+            android:name=".ui.favorites.FavoritesActivity"
+            android:exported="false"
+            android:screenOrientation="landscape" />
+
     </application>
 </manifest>
