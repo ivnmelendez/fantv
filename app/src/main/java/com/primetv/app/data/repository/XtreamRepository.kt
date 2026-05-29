@@ -1,5 +1,6 @@
 package com.primetv.app.data.repository
 
+import android.os.Build
 import android.util.Log
 import com.primetv.app.data.api.ApiClient
 import com.primetv.app.data.db.AppDatabase
@@ -104,8 +105,16 @@ class XtreamRepository(private val prefs: Prefs, private val db: AppDatabase) {
 
     @Volatile private var syncedThisSession = false
 
+    private fun isEmulator() = Build.FINGERPRINT.startsWith("generic")
+        || Build.FINGERPRINT.startsWith("unknown")
+        || Build.MODEL.contains("Emulator")
+        || Build.MODEL.contains("Android SDK built for x86")
+        || Build.MANUFACTURER.contains("Genymotion")
+        || (Build.BRAND.startsWith("generic") && Build.DEVICE.startsWith("generic"))
+        || Build.PRODUCT == "google_sdk"
+
     suspend fun syncSession() = coroutineScope {
-        val forceAll = !syncedThisSession
+        val forceAll = !syncedThisSession && !isEmulator()
         syncedThisSession = true
         launch {
             if (forceAll || prefs.isCacheExpired(prefs.lastVodFetchTime))
