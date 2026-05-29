@@ -53,7 +53,7 @@
     <dimen name="zoom_right_grid_width">@dimen/_158sdp</dimen>
     <dimen name="font_detail_title">@dimen/_28ssp</dimen>
     <dimen name="detail_btn_width">@dimen/_220sdp</dimen>
-    <dimen name="detail_btn_height">@dimen/_36sdp</dimen>
+    <dimen name="detail_btn_height">@dimen/_22sdp</dimen>
 
     <!-- Live TV -->
     <dimen name="live_categories_height">@dimen/_141sdp</dimen>

@@ -303,7 +303,7 @@ class MainViewModel(private val repo: XtreamRepository) : ViewModel() {
                         num = 0, name = e.title, streamId = e.streamId.toIntOrNull() ?: 0,
                         streamIcon = icon, rating = null, rating5Based = null,
                         added = null, categoryId = "watch_history",
-                        containerExtension = "resume", customSid = null, directSource = null
+                        containerExtension = if (e.isSeries) "resume_series" else "resume", customSid = null, directSource = null
                     )
                 }
 
@@ -350,7 +350,7 @@ class MainViewModel(private val repo: XtreamRepository) : ViewModel() {
                     num = 0, name = e.title, streamId = e.streamId.toIntOrNull() ?: 0,
                     streamIcon = icon, rating = null, rating5Based = null,
                     added = null, categoryId = "watch_history",
-                    containerExtension = "resume", customSid = null, directSource = null
+                    containerExtension = if (e.isSeries) "resume_series" else "resume", customSid = null, directSource = null
                 )
             }
             val newRows = current.rows.filter { it.categoryId != "watch_history" }.toMutableList()

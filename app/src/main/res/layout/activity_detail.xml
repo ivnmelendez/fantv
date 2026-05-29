@@ -173,7 +173,7 @@
                 android:background="@drawable/selector_detail_btn_primary"
                 android:focusable="true"
                 android:clickable="true"
-                android:layout_marginBottom="@dimen/margin_4" />
+                android:layout_marginBottom="@dimen/margin_2" />
 
             <!-- Secondary play button (hidden unless alternate stream exists) -->
             <TextView
@@ -190,7 +190,7 @@
                 android:focusable="true"
                 android:clickable="true"
                 android:visibility="gone"
-                android:layout_marginBottom="@dimen/margin_4" />
+                android:layout_marginBottom="@dimen/margin_2" />
 
             <TextView
                 android:id="@+id/btn_favorites"
@@ -213,7 +213,7 @@
                 android:gravity="center_vertical"
                 android:paddingStart="@dimen/margin_10"
                 android:paddingEnd="@dimen/margin_10"
-                android:layout_marginTop="@dimen/margin_4"
+                android:layout_marginTop="@dimen/margin_2"
                 android:text="@string/detail_remove_history"
                 android:textSize="@dimen/font_14"
                 android:textColor="#88FFFFFF"

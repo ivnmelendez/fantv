@@ -126,14 +126,14 @@ class MainActivity : AppCompatActivity() {
                             onItemClick = { item -> onItemClick(item) },
                             onItemFocus = { item ->
                                 bindFeatured(item)
-                                viewModel.loadFeaturedInfo(item.streamId, item.name, item.containerExtension == "series")
+                                viewModel.loadFeaturedInfo(item.streamId, item.name, item.containerExtension == "series" || item.containerExtension == "resume_series")
                             },
                             onRefreshRow = { viewModel.refreshSportsRow() }
                         )
                         adapter = rowsAdapter
                     }
                     state.featuredItem?.let { item ->
-                        viewModel.loadFeaturedInfo(item.streamId, item.name, item.containerExtension == "series")
+                        viewModel.loadFeaturedInfo(item.streamId, item.name, item.containerExtension == "series" || item.containerExtension == "resume_series")
                     }
                 }
                 is MainState.Error -> {
@@ -185,7 +185,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun onItemClick(item: VodStream) {
-        if (item.containerExtension == "resume") {
+        if (item.containerExtension == "resume" || item.containerExtension == "resume_series") {
             val history = watchHistoryMap[item.streamId.toString()] ?: return
             val detailStreamId = history.seriesId?.toIntOrNull() ?: item.streamId
             startActivity(Intent(this, DetailActivity::class.java).apply {
@@ -198,7 +198,7 @@ class MainActivity : AppCompatActivity() {
             })
             return
         }
-        if (item.containerExtension == "series") {
+        if (item.containerExtension == "series" || item.containerExtension == "resume_series") {
             val intent = Intent(this, DetailActivity::class.java).apply {
                 putExtra(EXTRA_STREAM_ID, item.streamId)
                 putExtra(EXTRA_TITLE, item.name)
