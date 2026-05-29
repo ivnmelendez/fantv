@@ -27,14 +27,8 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="BETA"
-        android:textColor="#FFCC00"
+        android:textColor="@color/white"
         android:textSize="@dimen/font_12"
-        android:textStyle="bold"
-        android:letterSpacing="0.2"
-        android:background="@drawable/shape_quality_badge"
-        android:paddingStart="@dimen/margin_8"
-        android:paddingEnd="@dimen/margin_8"
-        android:paddingTop="@dimen/margin_2"
-        android:paddingBottom="@dimen/margin_2" />
+        android:letterSpacing="0.3" />
 
 </LinearLayout>
