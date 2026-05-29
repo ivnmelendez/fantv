@@ -64,7 +64,11 @@ class MainActivity : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
-        viewModel.reloadWatchHistory()
+        if (viewModel.state.value is MainState.Success) {
+            viewModel.reloadWatchHistory()
+        } else {
+            loadMenu(prefs.activeMenuIndex.coerceIn(MENU_HOME, MENU_SERIES))
+        }
     }
 
     private fun setupMenu() {
