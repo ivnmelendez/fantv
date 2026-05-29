@@ -7,17 +7,16 @@ import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.primetv.app.R
 import com.primetv.app.data.model.VodStream
-import com.primetv.app.databinding.ItemPosterBinding
+import com.primetv.app.databinding.ItemSearchResultBinding
 
 class SearchResultsAdapter(
     private var items: List<VodStream>,
     private val onClick: (VodStream) -> Unit
 ) : RecyclerView.Adapter<SearchResultsAdapter.VH>() {
 
-    inner class VH(val binding: ItemPosterBinding) : RecyclerView.ViewHolder(binding.root) {
+    inner class VH(val binding: ItemSearchResultBinding) : RecyclerView.ViewHolder(binding.root) {
         fun bind(item: VodStream) {
-            binding.tvQuality.visibility = android.view.View.GONE
-            binding.cintilla.setImageDrawable(null)
+            binding.tvTitle.text = item.name
             Glide.with(binding.poster)
                 .load(item.streamIcon)
                 .placeholder(android.R.drawable.ic_menu_gallery)
@@ -32,8 +31,7 @@ class SearchResultsAdapter(
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): VH {
-        val binding = ItemPosterBinding.inflate(LayoutInflater.from(parent.context), parent, false)
-        binding.root.setBackground(null)
+        val binding = ItemSearchResultBinding.inflate(LayoutInflater.from(parent.context), parent, false)
         return VH(binding)
     }
 

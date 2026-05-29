@@ -64,7 +64,7 @@ class SearchActivity : AppCompatActivity() {
 
     private fun setupResults() {
         resultsAdapter = SearchResultsAdapter(emptyList()) { item -> openDetail(item) }
-        binding.rvResults.layoutManager = GridLayoutManager(this, 5)
+        binding.rvResults.layoutManager = GridLayoutManager(this, 4)
         binding.rvResults.adapter = resultsAdapter
         binding.rvResults.itemAnimator = null
     }
