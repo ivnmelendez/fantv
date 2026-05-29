@@ -54,6 +54,9 @@ class MainViewModel(private val repo: XtreamRepository) : ViewModel() {
     private val _sportsRefreshed = MutableLiveData<List<VodStream>>()
     val sportsRefreshed: LiveData<List<VodStream>> = _sportsRefreshed
 
+    private val _historyRow = MutableLiveData<List<VodStream>>()
+    val historyRow: LiveData<List<VodStream>> = _historyRow
+
     private val _watchHistoryMap = MutableLiveData<Map<String, WatchHistoryEntity>>(emptyMap())
     val watchHistoryMap: LiveData<Map<String, WatchHistoryEntity>> = _watchHistoryMap
 
@@ -335,7 +338,7 @@ class MainViewModel(private val repo: XtreamRepository) : ViewModel() {
     }
 
     fun reloadWatchHistory() {
-        val current = _state.value as? MainState.Success ?: return
+        if (_state.value !is MainState.Success) return
         viewModelScope.launch {
             val historyEntities = runCatching {
                 App.instance.db.contentDao().getWatchHistory()
@@ -353,9 +356,7 @@ class MainViewModel(private val repo: XtreamRepository) : ViewModel() {
                     containerExtension = if (e.isSeries) "resume_series" else "resume", customSid = null, directSource = null
                 )
             }
-            val newRows = current.rows.filter { it.categoryId != "watch_history" }.toMutableList()
-            if (historyItems.isNotEmpty()) newRows.add(0, ContentRow("watch_history", "Seguir viendo", historyItems))
-            _state.postValue(MainState.Success(current.featuredItem, newRows))
+            _historyRow.postValue(historyItems)
         }
     }
 

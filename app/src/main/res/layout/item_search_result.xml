@@ -11,14 +11,13 @@
     <RelativeLayout
         android:id="@+id/rlay_main"
         android:layout_width="match_parent"
-        android:layout_height="@dimen/_97sdp">
+        android:layout_height="@dimen/_140sdp">
 
         <ImageView
             android:id="@+id/poster"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:scaleType="fitXY"
-            android:adjustViewBounds="true" />
+            android:scaleType="centerCrop" />
 
     </RelativeLayout>
 

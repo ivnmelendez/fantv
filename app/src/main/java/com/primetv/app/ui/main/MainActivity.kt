@@ -112,6 +112,9 @@ class MainActivity : AppCompatActivity() {
         viewModel.sportsRefreshed.observe(this) { sports ->
             rowsAdapter?.updateRow("home_sports", sports)
         }
+        viewModel.historyRow.observe(this) { items ->
+            rowsAdapter?.insertOrUpdateWatchHistoryRow(items)
+        }
         viewModel.state.observe(this) { state ->
             when (state) {
                 is MainState.Loading -> showLoading(state.message)

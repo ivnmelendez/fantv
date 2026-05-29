@@ -41,6 +41,25 @@ class RowsAdapter(
         if (adapterPos >= 0) notifyItemChanged(adapterPos)
     }
 
+    fun insertOrUpdateWatchHistoryRow(items: List<VodStream>) {
+        val idx = mutableRows.indexOfFirst { it.categoryId == "watch_history" }
+        if (items.isEmpty()) {
+            if (idx >= 0) { mutableRows.removeAt(idx); flatItems = buildFlatItems(); notifyDataSetChanged() }
+            return
+        }
+        val row = ContentRow("watch_history", "Seguir viendo", items)
+        if (idx >= 0) {
+            mutableRows[idx] = row
+            flatItems = buildFlatItems()
+            val pos = flatItems.indexOfFirst { it is Item.Row && (it as Item.Row).row.categoryId == "watch_history" }
+            if (pos >= 0) notifyItemChanged(pos)
+        } else {
+            mutableRows.add(0, row)
+            flatItems = buildFlatItems()
+            notifyItemInserted(0)
+        }
+    }
+
     private val scrollStates = HashMap<String, Parcelable?>()
     private val focusedPositions = HashMap<Int, Int>()
 
