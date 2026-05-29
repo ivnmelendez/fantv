@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/black"
+    android:orientation="vertical"
+    android:gravity="center"
+    android:paddingStart="@dimen/main_menu_view_width_closed">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="FanTV"
+        android:textColor="@color/white"
+        android:textSize="@dimen/font_title_feat"
+        android:textStyle="bold"
+        android:layout_marginBottom="@dimen/margin_8" />
+
+    <TextView
+        android:id="@+id/tv_version"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textColor="#AAFFFFFF"
+        android:textSize="@dimen/font_16"
+        android:layout_marginBottom="@dimen/margin_4" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="BETA"
+        android:textColor="#FFCC00"
+        android:textSize="@dimen/font_12"
+        android:textStyle="bold"
+        android:letterSpacing="0.2"
+        android:background="@drawable/shape_quality_badge"
+        android:paddingStart="@dimen/margin_8"
+        android:paddingEnd="@dimen/margin_8"
+        android:paddingTop="@dimen/margin_2"
+        android:paddingBottom="@dimen/margin_2" />
+
+</LinearLayout>
