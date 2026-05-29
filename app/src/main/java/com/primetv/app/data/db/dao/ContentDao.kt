@@ -103,6 +103,12 @@ interface ContentDao {
     @Query("DELETE FROM watch_history WHERE streamId = :streamId")
     suspend fun deleteWatchHistory(streamId: String)
 
+    @Query("SELECT * FROM watch_history WHERE seriesId = :seriesId ORDER BY watchedAt DESC LIMIT 1")
+    suspend fun getWatchHistoryEntryBySeriesId(seriesId: String): com.primetv.app.data.db.entity.WatchHistoryEntity?
+
+    @Query("DELETE FROM watch_history WHERE seriesId = :seriesId")
+    suspend fun deleteWatchHistoryBySeriesId(seriesId: String)
+
     // TMDB cache
     @Query("SELECT * FROM tmdb_cache WHERE key = :key LIMIT 1")
     suspend fun getTmdbCache(key: String): TmdbCacheEntity?

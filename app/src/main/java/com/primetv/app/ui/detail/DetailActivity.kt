@@ -119,12 +119,18 @@ class DetailActivity : AppCompatActivity() {
 
         val sidStr = streamId.toString()
         lifecycleScope.launch {
-            val inHistory = App.instance.db.contentDao().getWatchHistoryEntry(sidStr) != null
+            val inHistory = if (isSeries)
+                App.instance.db.contentDao().getWatchHistoryEntryBySeriesId(sidStr) != null
+            else
+                App.instance.db.contentDao().getWatchHistoryEntry(sidStr) != null
             if (inHistory) binding.btnRemoveHistory.visibility = View.VISIBLE
         }
         binding.btnRemoveHistory.setOnClickListener {
             lifecycleScope.launch {
-                App.instance.db.contentDao().deleteWatchHistory(sidStr)
+                if (isSeries)
+                    App.instance.db.contentDao().deleteWatchHistoryBySeriesId(sidStr)
+                else
+                    App.instance.db.contentDao().deleteWatchHistory(sidStr)
                 binding.btnRemoveHistory.visibility = View.GONE
             }
         }

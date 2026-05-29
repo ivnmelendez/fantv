@@ -62,6 +62,11 @@ class MainActivity : AppCompatActivity() {
         loadMenu(prefs.activeMenuIndex)
     }
 
+    override fun onResume() {
+        super.onResume()
+        viewModel.reloadWatchHistory()
+    }
+
     private fun setupMenu() {
         val menuItems = listOf(
             MenuItem(MENU_HOME,     getString(R.string.nav_home),     R.drawable.ic_nav_home),

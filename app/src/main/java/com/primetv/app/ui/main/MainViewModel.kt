@@ -61,6 +61,9 @@ class MainViewModel(private val repo: XtreamRepository) : ViewModel() {
     private val pendingFetches = HashSet<Int>()
     private var currentFeaturedId = -1
 
+    private var cachedMoviesById: Map<String, VodStream> = emptyMap()
+    private var cachedSeriesById: Map<String, VodStream> = emptyMap()
+
     private fun isCamCategoryName(name: String): Boolean {
         val normalized = name.trim().lowercase()
         return normalized == "cam" ||
@@ -289,6 +292,8 @@ class MainViewModel(private val repo: XtreamRepository) : ViewModel() {
                 _watchHistoryMap.postValue(historyMap)
                 val movieById = movies.associateBy { it.streamId.toString() }
                 val seriesById = series.associateBy { it.streamId.toString() }
+                cachedMoviesById = movieById
+                cachedSeriesById = seriesById
                 val historyItems = historyEntities.map { e ->
                     val lookupId = e.seriesId ?: e.streamId
                     val icon = movieById[lookupId]?.streamIcon
@@ -326,6 +331,31 @@ class MainViewModel(private val repo: XtreamRepository) : ViewModel() {
     fun refreshSportsRow() {
         viewModelScope.launch {
             _sportsRefreshed.value = loadSportsRow(forceApi = true).take(50)
+        }
+    }
+
+    fun reloadWatchHistory() {
+        val current = _state.value as? MainState.Success ?: return
+        viewModelScope.launch {
+            val historyEntities = runCatching {
+                App.instance.db.contentDao().getWatchHistory()
+            }.getOrElse { emptyList() }
+            _watchHistoryMap.postValue(historyEntities.associateBy { it.streamId })
+            val historyItems = historyEntities.map { e ->
+                val lookupId = e.seriesId ?: e.streamId
+                val icon = cachedMoviesById[lookupId]?.streamIcon
+                    ?: cachedSeriesById[lookupId]?.streamIcon
+                    ?: e.posterUrl
+                VodStream(
+                    num = 0, name = e.title, streamId = e.streamId.toIntOrNull() ?: 0,
+                    streamIcon = icon, rating = null, rating5Based = null,
+                    added = null, categoryId = "watch_history",
+                    containerExtension = "resume", customSid = null, directSource = null
+                )
+            }
+            val newRows = current.rows.filter { it.categoryId != "watch_history" }.toMutableList()
+            if (historyItems.isNotEmpty()) newRows.add(0, ContentRow("watch_history", "Seguir viendo", historyItems))
+            _state.postValue(MainState.Success(current.featuredItem, newRows))
         }
     }
 
