@@ -52,7 +52,7 @@
             android:id="@id/exo_play_pause"
             android:layout_width="@dimen/_44sdp"
             android:layout_height="@dimen/_44sdp"
-            android:background="?attr/selectableItemBackgroundBorderless"
+            android:background="@null"
             android:focusable="true"
             android:padding="@dimen/_6sdp" />
 
