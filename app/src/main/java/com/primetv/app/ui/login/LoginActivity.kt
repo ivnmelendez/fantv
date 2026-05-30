@@ -22,20 +22,34 @@ class LoginActivity : AppCompatActivity() {
         private const val SERVER_URL = "http://alfastr3am.lat:2082"
     }
 
+    private val updateManager by lazy { UpdateManager(this) }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityLoginBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        if (prefs.hasCredentials()) { goToMain(); return }
-
-        binding.tvVersion.text = "v${BuildConfig.VERSION_NAME}"
+        binding.splashLayout.visibility = View.VISIBLE
+        binding.loginForm.visibility = View.GONE
 
         val repo = XtreamRepository(prefs, App.instance.db)
         viewModel = ViewModelProvider(this, LoginViewModelFactory(repo))[LoginViewModel::class.java]
-
         observeState()
         setupInputs()
+
+        updateManager.check { proceedAfterUpdateCheck() }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        updateManager.recheckIfPending()
+    }
+
+    private fun proceedAfterUpdateCheck() {
+        binding.tvVersion.text = "v${BuildConfig.VERSION_NAME}"
+        if (prefs.hasCredentials()) { goToMain(); return }
+        binding.splashLayout.visibility = View.GONE
+        binding.loginForm.visibility = View.VISIBLE
     }
 
     private fun observeState() {
