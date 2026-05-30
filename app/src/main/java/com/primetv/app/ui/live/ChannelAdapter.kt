@@ -1,5 +1,6 @@
 package com.primetv.app.ui.live
 
+import android.graphics.Typeface
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
@@ -24,10 +25,16 @@ class ChannelAdapter(
         fun bind(item: LiveStream, playing: Boolean) {
             binding.tvChannelName.text = item.name
             binding.tvChannelName.alpha = if (playing) 1f else 0.7f
-            binding.tvChannelName.setTypeface(null, if (playing) android.graphics.Typeface.BOLD else android.graphics.Typeface.NORMAL)
+            binding.tvChannelName.setTypeface(null, if (playing) Typeface.BOLD else Typeface.NORMAL)
+
             Glide.with(binding.ivChannelLogo)
                 .load(item.streamIcon)
                 .into(binding.ivChannelLogo)
+
+            binding.root.setOnFocusChangeListener { v, hasFocus ->
+                v.setBackgroundColor(if (hasFocus) 0x22FFFFFF else 0x00000000)
+            }
+
             binding.root.setOnClickListener { onClick(item) }
         }
     }

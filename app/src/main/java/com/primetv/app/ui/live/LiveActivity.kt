@@ -98,10 +98,17 @@ class LiveActivity : AppCompatActivity() {
 
         viewModel.categories.observe(this) { cats ->
             binding.categoryGrid.layoutManager = LinearLayoutManager(this)
-            binding.categoryGrid.adapter = CategoryAdapter(cats) { catId ->
-                viewModel.selectCategory(catId)
-                resetAutoHide()
-            }
+            binding.categoryGrid.adapter = CategoryAdapter(
+                items = cats,
+                onSelect = { catId ->
+                    viewModel.selectCategory(catId)
+                    resetAutoHide()
+                },
+                onConfirm = {
+                    binding.channelGrid.requestFocus()
+                    resetAutoHide()
+                }
+            )
         }
 
         viewModel.channels.observe(this) { channels ->
@@ -180,6 +187,26 @@ class LiveActivity : AppCompatActivity() {
             when (event.keyCode) {
                 KeyEvent.KEYCODE_BACK, KeyEvent.KEYCODE_ESCAPE -> {
                     hideOverlay(); true
+                }
+                KeyEvent.KEYCODE_DPAD_RIGHT -> {
+                    if (binding.categoryGrid.hasFocus()) {
+                        binding.channelGrid.requestFocus()
+                        resetAutoHide()
+                        true
+                    } else {
+                        resetAutoHide()
+                        super.dispatchKeyEvent(event)
+                    }
+                }
+                KeyEvent.KEYCODE_DPAD_LEFT -> {
+                    if (binding.channelGrid.hasFocus()) {
+                        binding.categoryGrid.requestFocus()
+                        resetAutoHide()
+                        true
+                    } else {
+                        resetAutoHide()
+                        super.dispatchKeyEvent(event)
+                    }
                 }
                 else -> {
                     resetAutoHide()
