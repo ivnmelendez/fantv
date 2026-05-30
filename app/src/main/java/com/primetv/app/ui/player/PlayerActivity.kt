@@ -1,9 +1,10 @@
 package com.primetv.app.ui.player
 
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.view.View
 import android.view.WindowManager
-import android.widget.ImageButton
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
@@ -13,7 +14,7 @@ import androidx.media3.common.Player
 import androidx.media3.common.TrackSelectionOverride
 import androidx.media3.common.Tracks
 import androidx.media3.exoplayer.ExoPlayer
-import androidx.media3.ui.DefaultTimeBar
+import androidx.media3.ui.TimeBar
 import com.primetv.app.App
 import com.primetv.app.R
 import com.primetv.app.data.db.entity.WatchHistoryEntity
@@ -25,9 +26,16 @@ class PlayerActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityPlayerBinding
     private var player: ExoPlayer? = null
-    private var btnPlayPause: ImageButton? = null
-    private var btnSubtitle: ImageButton? = null
-    private var btnAudio: ImageButton? = null
+    private var isLiveStream = false
+    private val uiHandler = Handler(Looper.getMainLooper())
+
+    private val updateProgressRunnable = object : Runnable {
+        override fun run() {
+            updateProgress()
+            uiHandler.postDelayed(this, 500)
+        }
+    }
+    private val hideControlsRunnable = Runnable { hideControls() }
 
     companion object {
         const val EXTRA_URL          = "stream_url"
@@ -40,6 +48,7 @@ class PlayerActivity : AppCompatActivity() {
         const val EXTRA_SERIES_ID    = "series_id"
         const val EXTRA_SERIES_TITLE = "series_title"
         const val EXTRA_IS_LIVE      = "is_live"
+        private const val CONTROLS_TIMEOUT_MS = 3000L
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -47,51 +56,41 @@ class PlayerActivity : AppCompatActivity() {
         window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
         binding = ActivityPlayerBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        binding.pbBuffer.translationY = -(20 * resources.displayMetrics.density)
 
         val url            = intent.getStringExtra(EXTRA_URL) ?: run { finish(); return }
-        val isLive         = intent.getBooleanExtra(EXTRA_IS_LIVE, false)
+        isLiveStream       = intent.getBooleanExtra(EXTRA_IS_LIVE, false)
         val intentPosition = intent.getLongExtra(EXTRA_POSITION, 0L)
         val streamId       = intent.getStringExtra(EXTRA_STREAM_ID)
 
-        if (isLive || intentPosition > 0L || streamId == null) {
-            initPlayer(url, intentPosition, isLive)
+        if (isLiveStream || intentPosition > 0L || streamId == null) {
+            initPlayer(url, intentPosition)
         } else {
             lifecycleScope.launch {
                 val saved = App.instance.db.contentDao().getWatchHistoryEntry(streamId)?.positionMs ?: 0L
-                initPlayer(url, saved, false)
+                initPlayer(url, saved)
             }
         }
     }
 
-    private fun initPlayer(url: String, startPositionMs: Long = 0L, isLive: Boolean = false) {
+    private fun initPlayer(url: String, startPositionMs: Long = 0L) {
         player = ExoPlayer.Builder(this).build().also { exo ->
             binding.playerView.player = exo
 
-            if (isLive) {
-                binding.playerView.useController = false
-            } else {
-                binding.playerView.findViewById<DefaultTimeBar>(androidx.media3.ui.R.id.exo_progress)
-                    ?.setKeyTimeIncrement(10_000)
-                btnPlayPause = binding.playerView.findViewById(R.id.btn_play_pause)
-                btnSubtitle  = binding.playerView.findViewById(R.id.btn_subtitle)
-                btnAudio     = binding.playerView.findViewById(R.id.btn_audio)
-                btnPlayPause?.setOnClickListener {
-                    exo.playWhenReady = !exo.playWhenReady
-                }
-                btnSubtitle?.setOnClickListener { showTrackPicker(C.TRACK_TYPE_TEXT) }
-                btnAudio?.setOnClickListener    { showTrackPicker(C.TRACK_TYPE_AUDIO) }
+            if (!isLiveStream) {
+                setupControls(exo)
             }
 
             exo.addListener(object : Player.Listener {
                 override fun onIsPlayingChanged(isPlaying: Boolean) {
-                    btnPlayPause?.setImageResource(
-                        if (isPlaying) R.drawable.ic_player_pause else R.drawable.ic_player_play
-                    )
+                    if (!isLiveStream) {
+                        binding.playerControls.btnPlayPause.setImageResource(
+                            if (isPlaying) R.drawable.ic_player_pause else R.drawable.ic_player_play
+                        )
+                    }
                 }
 
                 override fun onTracksChanged(tracks: Tracks) {
-                    updateTrackButtons(tracks)
+                    if (!isLiveStream) updateTrackButtons(tracks)
                 }
 
                 override fun onPlaybackStateChanged(state: Int) {
@@ -119,18 +118,82 @@ class PlayerActivity : AppCompatActivity() {
         }
     }
 
+    private fun setupControls(exo: ExoPlayer) {
+        val c = binding.playerControls
+
+        c.playerTimebar.setKeyTimeIncrement(10_000)
+        c.playerTimebar.addListener(object : TimeBar.OnScrubListener {
+            override fun onScrubStart(timeBar: TimeBar, position: Long) {
+                uiHandler.removeCallbacks(updateProgressRunnable)
+            }
+            override fun onScrubMove(timeBar: TimeBar, position: Long) {
+                c.playerPosition.text = formatTime(position)
+            }
+            override fun onScrubStop(timeBar: TimeBar, position: Long, canceled: Boolean) {
+                if (!canceled) exo.seekTo(position)
+                uiHandler.post(updateProgressRunnable)
+                scheduleHideControls()
+            }
+        })
+
+        c.btnPlayPause.setOnClickListener {
+            exo.playWhenReady = !exo.playWhenReady
+            scheduleHideControls()
+        }
+        c.btnSubtitle.setOnClickListener { showTrackPicker(C.TRACK_TYPE_TEXT) }
+        c.btnAudio.setOnClickListener    { showTrackPicker(C.TRACK_TYPE_AUDIO) }
+
+        uiHandler.post(updateProgressRunnable)
+    }
+
+    private fun updateProgress() {
+        val exo = player ?: return
+        val duration = exo.duration.takeIf { it > 0 } ?: 0L
+        val position = exo.currentPosition
+        val c = binding.playerControls
+        c.playerTimebar.setDuration(duration)
+        c.playerTimebar.setPosition(position)
+        c.playerTimebar.setBufferedPosition(exo.bufferedPosition)
+        c.playerPosition.text = formatTime(position)
+        c.playerDuration.text = formatTime(duration)
+    }
+
     private fun updateTrackButtons(tracks: Tracks) {
-        val textGroups  = tracks.groups.filter { it.type == C.TRACK_TYPE_TEXT }
-        val audioGroups = tracks.groups.filter { it.type == C.TRACK_TYPE_AUDIO }
-        btnSubtitle?.visibility = if (textGroups.isNotEmpty()) View.VISIBLE else View.GONE
-        btnAudio?.visibility    = if (audioGroups.size > 1)   View.VISIBLE else View.GONE
+        val c = binding.playerControls
+        c.btnSubtitle.visibility = if (tracks.groups.any { it.type == C.TRACK_TYPE_TEXT }) View.VISIBLE else View.GONE
+        c.btnAudio.visibility    = if (tracks.groups.count { it.type == C.TRACK_TYPE_AUDIO } > 1) View.VISIBLE else View.GONE
+    }
+
+    private fun showControls() {
+        binding.playerControls.root.visibility = View.VISIBLE
+        scheduleHideControls()
+    }
+
+    private fun hideControls() {
+        binding.playerControls.root.visibility = View.INVISIBLE
+        uiHandler.removeCallbacks(hideControlsRunnable)
+    }
+
+    private fun scheduleHideControls() {
+        uiHandler.removeCallbacks(hideControlsRunnable)
+        uiHandler.postDelayed(hideControlsRunnable, CONTROLS_TIMEOUT_MS)
+    }
+
+    private fun controlsVisible() = binding.playerControls.root.visibility == View.VISIBLE
+
+    private fun formatTime(ms: Long): String {
+        val s = ms / 1000
+        val h = s / 3600
+        val m = (s % 3600) / 60
+        val sec = s % 60
+        return if (h > 0) String.format("%d:%02d:%02d", h, m, sec)
+        else String.format("%d:%02d", m, sec)
     }
 
     private fun showTrackPicker(trackType: Int) {
         val exo    = player ?: return
         val groups = exo.currentTracks.groups.filter { it.type == trackType }
         if (groups.isEmpty()) return
-
         val labels = groups.mapIndexed { i, group ->
             val fmt = group.getTrackFormat(0)
             when {
@@ -139,10 +202,8 @@ class PlayerActivity : AppCompatActivity() {
                 else                          -> "Pista ${i + 1}"
             }
         }.toTypedArray()
-
-        val title = if (trackType == C.TRACK_TYPE_TEXT) "Subtítulos" else "Audio"
         AlertDialog.Builder(this)
-            .setTitle(title)
+            .setTitle(if (trackType == C.TRACK_TYPE_TEXT) "Subtítulos" else "Audio")
             .setItems(labels) { _, which ->
                 exo.trackSelectionParameters = exo.trackSelectionParameters
                     .buildUpon()
@@ -189,37 +250,46 @@ class PlayerActivity : AppCompatActivity() {
     override fun onResume() {
         super.onResume()
         player?.playWhenReady = true
+        if (!isLiveStream) uiHandler.post(updateProgressRunnable)
     }
 
     override fun onPause() {
         super.onPause()
         saveWatchHistory()
         player?.playWhenReady = false
+        uiHandler.removeCallbacks(updateProgressRunnable)
+        uiHandler.removeCallbacks(hideControlsRunnable)
     }
 
     override fun onDestroy() {
+        uiHandler.removeCallbacksAndMessages(null)
         player?.release()
         player = null
         super.onDestroy()
     }
 
     override fun onKeyDown(keyCode: Int, event: android.view.KeyEvent?): Boolean {
-        if (keyCode == android.view.KeyEvent.KEYCODE_BACK ||
-            keyCode == android.view.KeyEvent.KEYCODE_ESCAPE) {
-            if (binding.playerView.isControllerFullyVisible) {
-                binding.playerView.hideController()
-            } else {
-                finish()
+        when (keyCode) {
+            android.view.KeyEvent.KEYCODE_BACK,
+            android.view.KeyEvent.KEYCODE_ESCAPE -> {
+                if (controlsVisible()) hideControls() else finish()
+                return true
             }
-            return true
-        }
-        if (!binding.playerView.isControllerFullyVisible) {
-            when (keyCode) {
-                android.view.KeyEvent.KEYCODE_DPAD_RIGHT -> {
+            android.view.KeyEvent.KEYCODE_DPAD_CENTER,
+            android.view.KeyEvent.KEYCODE_ENTER -> {
+                if (!isLiveStream) {
+                    if (controlsVisible()) scheduleHideControls() else showControls()
+                    return true
+                }
+            }
+            android.view.KeyEvent.KEYCODE_DPAD_RIGHT -> {
+                if (!isLiveStream && !controlsVisible()) {
                     player?.let { it.seekTo(it.currentPosition + 10_000L) }
                     return true
                 }
-                android.view.KeyEvent.KEYCODE_DPAD_LEFT -> {
+            }
+            android.view.KeyEvent.KEYCODE_DPAD_LEFT -> {
+                if (!isLiveStream && !controlsVisible()) {
                     player?.let { it.seekTo((it.currentPosition - 10_000L).coerceAtLeast(0L)) }
                     return true
                 }
