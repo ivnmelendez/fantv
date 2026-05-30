@@ -123,7 +123,7 @@ class LiveActivity : AppCompatActivity() {
                 adapter.playingIndex = channels.indexOf(current).coerceAtLeast(0)
             } else if (channels.isNotEmpty()) {
                 val saved = prefs.lastLiveStreamId
-                val resume = if (saved != -1) channels.firstOrNull { it.streamId == saved } else null
+                val resume = if (saved != -1) viewModel.allChannels.firstOrNull { it.streamId == saved } else null
                 playChannel(resume ?: channels.first())
                 showOverlay()
             }
