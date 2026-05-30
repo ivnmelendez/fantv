@@ -124,7 +124,17 @@ class MainActivity : AppCompatActivity() {
                     bindFeatured(state.featuredItem)
                     binding.rvRows.apply {
                         itemAnimator = null
-                        layoutManager = LinearLayoutManager(this@MainActivity)
+                        layoutManager = object : LinearLayoutManager(this@MainActivity) {
+                            override fun onInterceptFocusSearch(focused: android.view.View, direction: Int): android.view.View? {
+                                if (direction == android.view.View.FOCUS_UP && findFirstVisibleItemPosition() == 0) {
+                                    val firstChild = findViewByPosition(0)
+                                    if (firstChild != null && (firstChild == focused || firstChild.hasFocus())) {
+                                        return focused
+                                    }
+                                }
+                                return super.onInterceptFocusSearch(focused, direction)
+                            }
+                        }
                         rowsAdapter = RowsAdapter(
                             rows = state.rows,
                             onItemClick = { item -> onItemClick(item) },
@@ -135,6 +145,7 @@ class MainActivity : AppCompatActivity() {
                             onRefreshRow = { viewModel.refreshSportsRow() }
                         )
                         adapter = rowsAdapter
+                        post { requestFocus() }
                     }
                     state.featuredItem?.let { item ->
                         viewModel.loadFeaturedInfo(item.streamId, item.name, item.containerExtension == "series" || item.containerExtension == "resume_series")
@@ -225,6 +236,16 @@ class MainActivity : AppCompatActivity() {
                 putExtra(EXTRA_STREAM_ICON, item.streamIcon)
             }
             startActivity(intent)
+        }
+    }
+
+    @Suppress("OVERRIDE_DEPRECATION")
+    override fun onBackPressed() {
+        val menuGrid = binding.menuLayout.menuGrid
+        if (!menuGrid.hasFocus()) {
+            menuGrid.requestFocus()
+        } else {
+            super.onBackPressed()
         }
     }
 

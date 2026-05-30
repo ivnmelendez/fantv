@@ -48,7 +48,7 @@ class FavoritesActivity : AppCompatActivity() {
                 binding.tvEmpty.visibility = View.GONE
                 binding.rvFavorites.visibility = View.VISIBLE
                 val adapter = SearchResultsAdapter(items) { item -> openDetail(item) }
-                binding.rvFavorites.layoutManager = GridLayoutManager(this@FavoritesActivity, 4)
+                binding.rvFavorites.layoutManager = GridLayoutManager(this@FavoritesActivity, 6)
                 binding.rvFavorites.adapter = adapter
                 binding.rvFavorites.itemAnimator = null
             }
