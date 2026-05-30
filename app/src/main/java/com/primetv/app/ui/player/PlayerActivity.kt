@@ -25,6 +25,7 @@ class PlayerActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityPlayerBinding
     private var player: ExoPlayer? = null
+    private var btnPlayPause: ImageButton? = null
     private var btnSubtitle: ImageButton? = null
     private var btnAudio: ImageButton? = null
 
@@ -46,6 +47,7 @@ class PlayerActivity : AppCompatActivity() {
         window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
         binding = ActivityPlayerBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        binding.pbBuffer.translationY = -resources.getDimension(R.dimen._22sdp)
 
         val url            = intent.getStringExtra(EXTRA_URL) ?: run { finish(); return }
         val isLive         = intent.getBooleanExtra(EXTRA_IS_LIVE, false)
@@ -71,13 +73,23 @@ class PlayerActivity : AppCompatActivity() {
             } else {
                 binding.playerView.findViewById<DefaultTimeBar>(androidx.media3.ui.R.id.exo_progress)
                     ?.setKeyTimeIncrement(10_000)
-                btnSubtitle = binding.playerView.findViewById(R.id.btn_subtitle)
-                btnAudio    = binding.playerView.findViewById(R.id.btn_audio)
+                btnPlayPause = binding.playerView.findViewById(R.id.btn_play_pause)
+                btnSubtitle  = binding.playerView.findViewById(R.id.btn_subtitle)
+                btnAudio     = binding.playerView.findViewById(R.id.btn_audio)
+                btnPlayPause?.setOnClickListener {
+                    exo.playWhenReady = !exo.playWhenReady
+                }
                 btnSubtitle?.setOnClickListener { showTrackPicker(C.TRACK_TYPE_TEXT) }
                 btnAudio?.setOnClickListener    { showTrackPicker(C.TRACK_TYPE_AUDIO) }
             }
 
             exo.addListener(object : Player.Listener {
+                override fun onIsPlayingChanged(isPlaying: Boolean) {
+                    btnPlayPause?.setImageResource(
+                        if (isPlaying) R.drawable.ic_player_pause else R.drawable.ic_player_play
+                    )
+                }
+
                 override fun onTracksChanged(tracks: Tracks) {
                     updateTrackButtons(tracks)
                 }

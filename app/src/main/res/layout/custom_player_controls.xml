@@ -45,10 +45,11 @@
         </LinearLayout>
 
         <ImageButton
-            android:id="@id/exo_play_pause"
+            android:id="@+id/btn_play_pause"
             android:layout_width="@dimen/_28sdp"
             android:layout_height="@dimen/_28sdp"
             android:background="@drawable/selector_player_button"
+            android:src="@drawable/ic_player_pause"
             android:focusable="true"
             android:padding="@dimen/_2sdp" />
 
