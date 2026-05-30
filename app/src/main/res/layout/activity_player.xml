@@ -13,8 +13,7 @@
         android:focusableInTouchMode="true"
         app:controller_layout_id="@layout/custom_player_controls"
         app:use_artwork="false"
-        app:shutter_background_color="#000000"
-        app:show_buffering="when_playing" />
+        app:shutter_background_color="#000000" />
 
     <!-- Buffer indicator -->
     <ProgressBar
