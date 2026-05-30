@@ -88,7 +88,11 @@ class LiveActivity : AppCompatActivity() {
                     showOverlay()
                 }
                 LiveState.Ready -> binding.loadingLayout.root.visibility = View.GONE
-                is LiveState.Error -> binding.loadingLayout.root.visibility = View.GONE
+                is LiveState.Error -> {
+                    binding.loadingLayout.root.visibility = View.GONE
+                    binding.tvOfflineMessage.text = state.message
+                    binding.rlayOffline.visibility = View.VISIBLE
+                }
             }
         }
 
