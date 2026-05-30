@@ -47,7 +47,7 @@ class PlayerActivity : AppCompatActivity() {
         window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
         binding = ActivityPlayerBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        binding.pbBuffer.translationY = -resources.getDimension(R.dimen._22sdp)
+        binding.pbBuffer.translationY = -resources.getDimension(R.dimen._20sdp)
 
         val url            = intent.getStringExtra(EXTRA_URL) ?: run { finish(); return }
         val isLive         = intent.getBooleanExtra(EXTRA_IS_LIVE, false)
