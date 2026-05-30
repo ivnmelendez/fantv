@@ -7,31 +7,28 @@
     android:background="#CC000000"
     android:orientation="vertical"
     android:paddingTop="@dimen/_2sdp"
-    android:paddingBottom="@dimen/_2sdp">
+    android:paddingBottom="@dimen/_4sdp">
 
-    <!-- Seekbar: full width, no horizontal padding -->
     <androidx.media3.ui.DefaultTimeBar
         android:id="@id/exo_progress"
         android:layout_width="match_parent"
-        android:layout_height="@dimen/_20sdp"
+        android:layout_height="@dimen/_16sdp"
         android:focusable="true"
-        android:background="@drawable/selector_seekbar_focus"
         app:played_color="@color/app_color_4"
         app:scrubber_color="@color/app_color_4"
         app:buffered_color="#80FFFFFF"
         app:unplayed_color="#33FFFFFF"
-        app:bar_height="@dimen/_6sdp"
-        app:scrubber_enabled_size="@dimen/_14sdp"
-        app:scrubber_dragged_size="@dimen/_18sdp" />
+        app:bar_height="@dimen/_4sdp"
+        app:scrubber_enabled_size="@dimen/_12sdp"
+        app:scrubber_dragged_size="@dimen/_16sdp" />
 
-    <!-- Controls row: position | play/pause | subs + audio + duration -->
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="@dimen/_36sdp"
+        android:layout_height="@dimen/_28sdp"
         android:gravity="center_vertical"
         android:orientation="horizontal"
-        android:paddingStart="@dimen/_16sdp"
-        android:paddingEnd="@dimen/_16sdp">
+        android:paddingStart="@dimen/_12sdp"
+        android:paddingEnd="@dimen/_12sdp">
 
         <LinearLayout
             android:layout_width="0dp"
@@ -44,16 +41,16 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textColor="@color/white"
-                android:textSize="@dimen/font_14" />
+                android:textSize="@dimen/font_12" />
         </LinearLayout>
 
         <ImageButton
             android:id="@id/exo_play_pause"
-            android:layout_width="@dimen/_36sdp"
-            android:layout_height="@dimen/_36sdp"
+            android:layout_width="@dimen/_28sdp"
+            android:layout_height="@dimen/_28sdp"
             android:background="@drawable/selector_player_button"
             android:focusable="true"
-            android:padding="@dimen/_4sdp" />
+            android:padding="@dimen/_2sdp" />
 
         <LinearLayout
             android:layout_width="0dp"
@@ -63,23 +60,23 @@
 
             <ImageButton
                 android:id="@+id/btn_subtitle"
-                android:layout_width="@dimen/_32sdp"
-                android:layout_height="@dimen/_32sdp"
+                android:layout_width="@dimen/_26sdp"
+                android:layout_height="@dimen/_26sdp"
                 android:background="@drawable/selector_player_button"
                 android:src="@drawable/ic_player_subtitle"
                 android:focusable="true"
-                android:padding="@dimen/_4sdp"
+                android:padding="@dimen/_2sdp"
                 android:visibility="gone" />
 
             <ImageButton
                 android:id="@+id/btn_audio"
-                android:layout_width="@dimen/_32sdp"
-                android:layout_height="@dimen/_32sdp"
+                android:layout_width="@dimen/_26sdp"
+                android:layout_height="@dimen/_26sdp"
                 android:background="@drawable/selector_player_button"
                 android:src="@drawable/ic_player_audio"
                 android:focusable="true"
-                android:padding="@dimen/_4sdp"
-                android:layout_marginEnd="@dimen/_8sdp"
+                android:padding="@dimen/_2sdp"
+                android:layout_marginEnd="@dimen/_6sdp"
                 android:visibility="gone" />
 
             <TextView
@@ -87,7 +84,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textColor="@color/app_color_3"
-                android:textSize="@dimen/font_14" />
+                android:textSize="@dimen/font_12" />
         </LinearLayout>
 
     </LinearLayout>
