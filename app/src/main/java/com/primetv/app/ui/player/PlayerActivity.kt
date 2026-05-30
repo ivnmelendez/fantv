@@ -69,7 +69,7 @@ class PlayerActivity : AppCompatActivity() {
             if (isLive) {
                 binding.playerView.useController = false
             } else {
-                binding.playerView.findViewById<DefaultTimeBar>(R.id.exo_progress)
+                binding.playerView.findViewById<DefaultTimeBar>(androidx.media3.ui.R.id.exo_progress)
                     ?.setKeyTimeIncrement(10_000)
                 btnSubtitle = binding.playerView.findViewById(R.id.btn_subtitle)
                 btnAudio    = binding.playerView.findViewById(R.id.btn_audio)
