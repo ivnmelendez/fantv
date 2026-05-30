@@ -194,6 +194,18 @@ class PlayerActivity : AppCompatActivity() {
             finish()
             return true
         }
+        if (!binding.playerView.isControllerFullyVisible) {
+            when (keyCode) {
+                android.view.KeyEvent.KEYCODE_DPAD_RIGHT -> {
+                    player?.let { it.seekTo(it.currentPosition + 10_000L) }
+                    return true
+                }
+                android.view.KeyEvent.KEYCODE_DPAD_LEFT -> {
+                    player?.let { it.seekTo((it.currentPosition - 10_000L).coerceAtLeast(0L)) }
+                    return true
+                }
+            }
+        }
         return super.onKeyDown(keyCode, event)
     }
 }
