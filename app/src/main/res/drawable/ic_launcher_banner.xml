@@ -1,11 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
-<vector xmlns:android="http://schemas.android.com/apk/res/android"
-    android:width="320dp"
-    android:height="180dp"
-    android:viewportWidth="320"
-    android:viewportHeight="180">
-    <path android:fillColor="@color/app_color_1"
-        android:pathData="M0,0h320v180h-320z"/>
-    <path android:fillColor="@color/app_color_4"
-        android:pathData="M20,40h60v100h-60z"/>
-</vector>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!-- Gradient background: brand colors E40717 → FA3803 -->
+    <item>
+        <shape android:shape="rectangle">
+            <gradient
+                android:type="linear"
+                android:angle="0"
+                android:startColor="#E40717"
+                android:endColor="#FA3803" />
+        </shape>
+    </item>
+
+    <!-- FanTV logo centered with padding -->
+    <item
+        android:drawable="@drawable/fantv_logo"
+        android:gravity="center"
+        android:top="24dp"
+        android:bottom="24dp"
+        android:left="80dp"
+        android:right="80dp" />
+
+</layer-list>
