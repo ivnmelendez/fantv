@@ -28,6 +28,7 @@ class PlayerActivity : AppCompatActivity() {
         const val EXTRA_IS_SERIES   = "is_series"
         const val EXTRA_SERIES_ID   = "series_id"
         const val EXTRA_SERIES_TITLE = "series_title"
+        const val EXTRA_IS_LIVE     = "is_live"
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -37,22 +38,24 @@ class PlayerActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         val url           = intent.getStringExtra(EXTRA_URL) ?: run { finish(); return }
+        val isLive        = intent.getBooleanExtra(EXTRA_IS_LIVE, false)
         val intentPosition = intent.getLongExtra(EXTRA_POSITION, 0L)
         val streamId      = intent.getStringExtra(EXTRA_STREAM_ID)
 
-        if (intentPosition > 0L || streamId == null) {
-            initPlayer(url, intentPosition)
+        if (isLive || intentPosition > 0L || streamId == null) {
+            initPlayer(url, intentPosition, isLive)
         } else {
             lifecycleScope.launch {
                 val saved = App.instance.db.contentDao().getWatchHistoryEntry(streamId)?.positionMs ?: 0L
-                initPlayer(url, saved)
+                initPlayer(url, saved, false)
             }
         }
     }
 
-    private fun initPlayer(url: String, startPositionMs: Long = 0L) {
+    private fun initPlayer(url: String, startPositionMs: Long = 0L, isLive: Boolean = false) {
         player = ExoPlayer.Builder(this).build().also { exo ->
             binding.playerView.player = exo
+            if (isLive) binding.playerView.useController = false
 
             exo.addListener(object : Player.Listener {
                 override fun onPlaybackStateChanged(state: Int) {

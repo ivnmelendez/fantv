@@ -245,6 +245,7 @@ class MainActivity : AppCompatActivity() {
             val intent = Intent(this, PlayerActivity::class.java).apply {
                 putExtra(PlayerActivity.EXTRA_URL, repo.buildLiveUrl(item.streamId))
                 putExtra(PlayerActivity.EXTRA_TITLE, item.name)
+                putExtra(PlayerActivity.EXTRA_IS_LIVE, true)
             }
             startActivity(intent)
         } else {
