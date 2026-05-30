@@ -6,16 +6,14 @@
     android:layout_gravity="bottom"
     android:background="#CC000000"
     android:orientation="vertical"
-    android:paddingStart="@dimen/_16sdp"
-    android:paddingEnd="@dimen/_16sdp"
-    android:paddingTop="@dimen/_8sdp"
-    android:paddingBottom="@dimen/_8sdp">
+    android:paddingTop="@dimen/_6sdp"
+    android:paddingBottom="@dimen/_6sdp">
 
-    <!-- Seekbar -->
+    <!-- Seekbar: full width, no horizontal padding -->
     <androidx.media3.ui.DefaultTimeBar
         android:id="@id/exo_progress"
         android:layout_width="match_parent"
-        android:layout_height="@dimen/_24sdp"
+        android:layout_height="@dimen/_20sdp"
         app:played_color="@color/app_color_4"
         app:scrubber_color="@color/app_color_4"
         app:buffered_color="#80FFFFFF"
@@ -24,15 +22,15 @@
         app:scrubber_enabled_size="@dimen/_14sdp"
         app:scrubber_dragged_size="@dimen/_18sdp" />
 
-    <!-- Controls row below seekbar -->
+    <!-- Controls row: position | play/pause | subs + audio + duration -->
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="@dimen/_44sdp"
+        android:layout_height="@dimen/_36sdp"
         android:gravity="center_vertical"
         android:orientation="horizontal"
-        android:layout_marginTop="@dimen/_4sdp">
+        android:paddingStart="@dimen/_16sdp"
+        android:paddingEnd="@dimen/_16sdp">
 
-        <!-- Left: current position -->
         <LinearLayout
             android:layout_width="0dp"
             android:layout_height="match_parent"
@@ -47,16 +45,14 @@
                 android:textSize="@dimen/font_14" />
         </LinearLayout>
 
-        <!-- Center: play/pause -->
         <ImageButton
             android:id="@id/exo_play_pause"
-            android:layout_width="@dimen/_44sdp"
-            android:layout_height="@dimen/_44sdp"
+            android:layout_width="@dimen/_36sdp"
+            android:layout_height="@dimen/_36sdp"
             android:background="@null"
             android:focusable="true"
-            android:padding="@dimen/_6sdp" />
+            android:padding="@dimen/_4sdp" />
 
-        <!-- Right: subtitle + audio + duration -->
         <LinearLayout
             android:layout_width="0dp"
             android:layout_height="match_parent"
@@ -65,19 +61,19 @@
 
             <ImageButton
                 android:id="@id/exo_subtitle"
-                android:layout_width="@dimen/_36sdp"
-                android:layout_height="@dimen/_36sdp"
-                android:background="?attr/selectableItemBackgroundBorderless"
+                android:layout_width="@dimen/_32sdp"
+                android:layout_height="@dimen/_32sdp"
+                android:background="@null"
                 android:focusable="true"
-                android:padding="@dimen/_6sdp" />
+                android:padding="@dimen/_4sdp" />
 
             <ImageButton
                 android:id="@id/exo_audio_track"
-                android:layout_width="@dimen/_36sdp"
-                android:layout_height="@dimen/_36sdp"
-                android:background="?attr/selectableItemBackgroundBorderless"
+                android:layout_width="@dimen/_32sdp"
+                android:layout_height="@dimen/_32sdp"
+                android:background="@null"
                 android:focusable="true"
-                android:padding="@dimen/_6sdp"
+                android:padding="@dimen/_4sdp"
                 android:layout_marginEnd="@dimen/_8sdp" />
 
             <TextView
