@@ -154,7 +154,7 @@ class XtreamRepository(private val prefs: Prefs, private val db: AppDatabase) {
         Log.d("Sync", "Series sync done: ${cats.size} cats, ${series.size} series")
     }
 
-    private suspend fun syncLive() {
+    suspend fun syncLive() {
         Log.d("Sync", "Live sync start")
         val cats = api.getLiveCategories(apiUrl(), user(), pass())
         dao.deleteCategories("live")

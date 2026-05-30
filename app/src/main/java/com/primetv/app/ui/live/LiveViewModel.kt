@@ -32,8 +32,14 @@ class LiveViewModel(private val repo: XtreamRepository) : ViewModel() {
         _state.value = LiveState.Loading
         viewModelScope.launch {
             try {
-                val cats = repo.getLiveCategories()
-                allChannels = repo.getLiveStreams()
+                var cats = repo.getLiveCategories()
+                var streams = repo.getLiveStreams()
+                if (cats.isEmpty() || streams.isEmpty()) {
+                    repo.syncLive()
+                    cats = repo.getLiveCategories()
+                    streams = repo.getLiveStreams()
+                }
+                allChannels = streams
                 val catPairs = cats.mapNotNull { cat ->
                     val name = cat.name ?: return@mapNotNull null
                     val id = cat.id ?: return@mapNotNull null
