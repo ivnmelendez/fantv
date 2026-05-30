@@ -6,8 +6,8 @@
     android:layout_gravity="bottom"
     android:background="#CC000000"
     android:orientation="vertical"
-    android:paddingTop="@dimen/_6sdp"
-    android:paddingBottom="@dimen/_6sdp">
+    android:paddingTop="@dimen/_2sdp"
+    android:paddingBottom="@dimen/_2sdp">
 
     <!-- Seekbar: full width, no horizontal padding -->
     <androidx.media3.ui.DefaultTimeBar
