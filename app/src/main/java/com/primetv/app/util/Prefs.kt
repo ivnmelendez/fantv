@@ -40,6 +40,10 @@ class Prefs(context: Context) {
         get() = prefs.getLong(KEY_LAST_LIVE_FETCH, 0L)
         set(v) = prefs.edit().putLong(KEY_LAST_LIVE_FETCH, v).apply()
 
+    var lastLiveStreamId: Int
+        get() = prefs.getInt(KEY_LAST_LIVE_STREAM, -1)
+        set(v) = prefs.edit().putInt(KEY_LAST_LIVE_STREAM, v).apply()
+
     fun isCacheExpired(lastFetch: Long): Boolean {
         val elapsed = System.currentTimeMillis() - lastFetch
         return elapsed > 24 * 60 * 60 * 1000L
@@ -61,5 +65,6 @@ class Prefs(context: Context) {
         private const val KEY_LAST_VOD_FETCH = "last_vod_fetch_time"
         private const val KEY_LAST_SERIES_FETCH = "last_series_fetch_time"
         private const val KEY_LAST_LIVE_FETCH = "last_live_fetch_time"
+        private const val KEY_LAST_LIVE_STREAM = "last_live_stream_id"
     }
 }

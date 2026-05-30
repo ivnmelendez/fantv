@@ -122,7 +122,9 @@ class LiveActivity : AppCompatActivity() {
             if (current != null) {
                 adapter.playingIndex = channels.indexOf(current).coerceAtLeast(0)
             } else if (channels.isNotEmpty()) {
-                playChannel(channels.first())
+                val saved = prefs.lastLiveStreamId
+                val resume = if (saved != -1) channels.firstOrNull { it.streamId == saved } else null
+                playChannel(resume ?: channels.first())
                 showOverlay()
             }
         }
@@ -133,6 +135,7 @@ class LiveActivity : AppCompatActivity() {
         currentStream = stream
         currentChannelIndex = channels.indexOf(stream).coerceAtLeast(0)
         (binding.channelGrid.adapter as? ChannelAdapter)?.playingIndex = currentChannelIndex
+        prefs.lastLiveStreamId = stream.streamId
 
         binding.tvCurrentChannel.text = stream.name
         Glide.with(this).load(stream.streamIcon).into(binding.ivCurrentLogo)
