@@ -12,9 +12,19 @@ class ChannelAdapter(
     private val onClick: (LiveStream) -> Unit
 ) : RecyclerView.Adapter<ChannelAdapter.VH>() {
 
+    var playingIndex: Int = -1
+        set(value) {
+            val prev = field
+            field = value
+            if (prev >= 0) notifyItemChanged(prev)
+            if (value >= 0) notifyItemChanged(value)
+        }
+
     inner class VH(val binding: ItemLiveChannelBinding) : RecyclerView.ViewHolder(binding.root) {
-        fun bind(item: LiveStream) {
+        fun bind(item: LiveStream, playing: Boolean) {
             binding.tvChannelName.text = item.name
+            binding.tvChannelName.alpha = if (playing) 1f else 0.7f
+            binding.tvChannelName.setTypeface(null, if (playing) android.graphics.Typeface.BOLD else android.graphics.Typeface.NORMAL)
             Glide.with(binding.ivChannelLogo)
                 .load(item.streamIcon)
                 .into(binding.ivChannelLogo)
@@ -27,6 +37,6 @@ class ChannelAdapter(
         return VH(b)
     }
 
-    override fun onBindViewHolder(holder: VH, position: Int) = holder.bind(items[position])
+    override fun onBindViewHolder(holder: VH, position: Int) = holder.bind(items[position], position == playingIndex)
     override fun getItemCount() = items.size
 }

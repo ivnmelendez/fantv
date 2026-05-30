@@ -1,177 +1,124 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:background="@color/app_color_1"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:background="@color/black">
 
-    <!-- Fullscreen video -->
+    <!-- Full-screen video -->
     <androidx.media3.ui.PlayerView
         android:id="@+id/player_view"
-        android:background="@color/app_color_1"
-        android:focusable="false"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent" />
-
-    <!-- Channel offline overlay -->
-    <RelativeLayout
-        android:gravity="center"
-        android:id="@+id/rlay_offline"
-        android:visibility="gone"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent">
-
-        <TextView
-            android:textSize="@dimen/font_title_feat"
-            android:textStyle="bold"
-            android:textColor="@color/white"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/channel_offline" />
-    </RelativeLayout>
-
-    <!-- Channel browser (bottom panel) -->
-    <RelativeLayout
-        android:id="@+id/fragments_layout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_marginStart="@dimen/main_menu_view_width_closed">
+        android:focusable="false"
+        android:clickable="false" />
 
-        <!-- Date/time display -->
+    <!-- No signal overlay -->
+    <FrameLayout
+        android:id="@+id/rlay_offline"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center"
+        android:visibility="gone">
+
         <TextView
-            android:id="@+id/tv_date"
-            android:textSize="@dimen/complete_date_text_size"
-            android:textColor="@color/white"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignParentTop="true"
-            android:layout_alignParentEnd="true"
-            android:layout_marginEnd="@dimen/margin_6"
-            android:layout_marginTop="@dimen/margin_3" />
+            android:layout_gravity="center"
+            android:text="@string/channel_offline"
+            android:textColor="@color/white"
+            android:textSize="@dimen/font_title_feat"
+            android:textStyle="bold" />
 
-        <!-- Category + Channel grids at bottom -->
+    </FrameLayout>
+
+    <!-- Channel browser overlay (bottom) -->
+    <LinearLayout
+        android:id="@+id/overlay_panel"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
+        android:background="#E8000000"
+        android:orientation="vertical"
+        android:visibility="gone">
+
+        <!-- Now playing bar -->
         <LinearLayout
-            android:id="@+id/channels_layout"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/live_channel_height"
+            android:gravity="center_vertical"
+            android:paddingStart="@dimen/main_menu_view_width_closed"
+            android:paddingEnd="@dimen/margin_10"
+            android:paddingTop="@dimen/margin_4"
+            android:paddingBottom="@dimen/margin_4">
+
+            <ImageView
+                android:id="@+id/iv_current_logo"
+                android:layout_width="@dimen/_32sdp"
+                android:layout_height="@dimen/_22sdp"
+                android:scaleType="fitCenter"
+                android:adjustViewBounds="true"
+                android:layout_marginEnd="@dimen/margin_8" />
+
+            <TextView
+                android:id="@+id/tv_current_channel"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:textColor="@color/white"
+                android:textSize="@dimen/font_sub_title"
+                android:textStyle="bold"
+                android:maxLines="1"
+                android:ellipsize="end" />
+
+            <TextView
+                android:id="@+id/tv_date"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="#AAFFFFFF"
+                android:textSize="@dimen/font_14" />
+
+        </LinearLayout>
+
+        <!-- Divider -->
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1px"
+            android:background="#33FFFFFF" />
+
+        <!-- Category + Channel browser -->
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="@dimen/live_categories_height"
-            android:layout_alignParentBottom="true">
+            android:paddingStart="@dimen/main_menu_view_width_closed"
+            android:orientation="horizontal">
 
             <!-- Category list -->
-            <RelativeLayout
+            <androidx.leanback.widget.VerticalGridView
+                android:id="@+id/category_grid"
                 android:layout_width="@dimen/live_categories_width"
-                android:layout_height="match_parent"
-                android:layout_weight="0">
+                android:layout_height="match_parent" />
 
-                <androidx.leanback.widget.VerticalGridView
-                    android:id="@+id/category_grid"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent" />
-            </RelativeLayout>
+            <!-- Divider -->
+            <View
+                android:layout_width="1px"
+                android:layout_height="match_parent"
+                android:background="#33FFFFFF" />
 
             <!-- Channel list -->
-            <RelativeLayout
-                android:gravity="center"
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:layout_weight="1">
-
-                <androidx.leanback.widget.VerticalGridView
-                    android:id="@+id/channel_grid"
-                    android:layout_width="wrap_content"
-                    android:layout_height="match_parent" />
-            </RelativeLayout>
-        </LinearLayout>
-    </RelativeLayout>
-
-    <!-- Program info panel (bottom, shown on key press) -->
-    <RelativeLayout
-        android:id="@+id/rlay_program_info"
-        android:visibility="gone"
-        android:layout_width="match_parent"
-        android:layout_height="@dimen/live_program_info_panel_height"
-        android:layout_alignParentBottom="true">
-
-        <RelativeLayout
-            android:background="@color/trn_black"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:alpha="0.85" />
-
-        <LinearLayout
-            android:paddingBottom="@dimen/margin_3"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:paddingStart="@dimen/margin_6"
-            android:paddingEnd="@dimen/margin_6"
-            android:gravity="center_vertical">
-
-            <LinearLayout
-                android:gravity="bottom"
-                android:orientation="vertical"
+            <androidx.leanback.widget.VerticalGridView
+                android:id="@+id/channel_grid"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
-                android:layout_weight="1"
-                android:paddingBottom="@dimen/margin_3">
+                android:layout_weight="1" />
 
-                <TextView
-                    android:id="@+id/tv_channel_name"
-                    android:textSize="@dimen/font_title"
-                    android:textStyle="bold"
-                    android:textColor="@color/white"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:maxLines="1" />
-
-                <TextView
-                    android:id="@+id/tv_program_title"
-                    android:textSize="@dimen/font_16"
-                    android:textStyle="bold"
-                    android:textColor="@color/white"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:maxLines="1" />
-
-                <LinearLayout
-                    android:orientation="horizontal"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content">
-
-                    <TextView
-                        android:id="@+id/tv_next_label"
-                        android:textSize="@dimen/font_16"
-                        android:textStyle="italic"
-                        android:textColor="@color/white"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@string/next" />
-
-                    <TextView
-                        android:id="@+id/tv_next_title"
-                        android:textSize="@dimen/font_16"
-                        android:textStyle="italic"
-                        android:textColor="@color/white"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:maxLines="1"
-                        android:layout_marginStart="@dimen/margin_6" />
-                </LinearLayout>
-            </LinearLayout>
-
-            <!-- Time display -->
-            <TextView
-                android:id="@+id/tv_time"
-                android:textSize="@dimen/font_16"
-                android:textStyle="bold"
-                android:gravity="center"
-                android:layout_width="@dimen/live_program_info_poster_panel_width"
-                android:layout_height="match_parent"
-                android:layout_marginTop="@dimen/margin_2" />
         </LinearLayout>
-    </RelativeLayout>
 
-    <!-- Side menu overlay -->
-    <include layout="@layout/layout_menu" />
+    </LinearLayout>
 
     <!-- Loading overlay -->
-    <include android:id="@+id/loadingLayout" layout="@layout/layout_loading" />
+    <include
+        android:id="@+id/loadingLayout"
+        layout="@layout/layout_loading"
+        android:visibility="gone" />
 
-</RelativeLayout>
+</FrameLayout>
