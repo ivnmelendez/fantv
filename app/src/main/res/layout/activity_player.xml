@@ -9,8 +9,8 @@
         android:id="@+id/player_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:focusable="true"
-        android:focusableInTouchMode="true"
+        android:focusable="false"
+        android:focusableInTouchMode="false"
         app:use_controller="false"
         app:use_artwork="false"
         app:shutter_background_color="#000000" />

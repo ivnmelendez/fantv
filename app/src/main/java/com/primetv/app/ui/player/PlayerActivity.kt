@@ -173,7 +173,6 @@ class PlayerActivity : AppCompatActivity() {
     private fun hideControls() {
         binding.playerControls.root.visibility = View.INVISIBLE
         uiHandler.removeCallbacks(hideControlsRunnable)
-        binding.playerView.requestFocus()
     }
 
     private fun scheduleHideControls() {
@@ -270,9 +269,8 @@ class PlayerActivity : AppCompatActivity() {
         super.onDestroy()
     }
 
-    override fun dispatchKeyEvent(event: android.view.KeyEvent): Boolean {
-        if (event.action != android.view.KeyEvent.ACTION_DOWN) return super.dispatchKeyEvent(event)
-        when (event.keyCode) {
+    override fun onKeyDown(keyCode: Int, event: android.view.KeyEvent?): Boolean {
+        when (keyCode) {
             android.view.KeyEvent.KEYCODE_BACK,
             android.view.KeyEvent.KEYCODE_ESCAPE -> {
                 if (controlsVisible()) hideControls() else finish()
@@ -298,6 +296,6 @@ class PlayerActivity : AppCompatActivity() {
                 }
             }
         }
-        return super.dispatchKeyEvent(event)
+        return super.onKeyDown(keyCode, event)
     }
 }
