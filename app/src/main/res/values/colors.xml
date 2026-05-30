@@ -4,7 +4,7 @@
     <color name="app_color_1">#000000</color>
     <color name="app_color_2">#ffffff</color>
     <color name="app_color_3">#bdbdbd</color>
-    <color name="app_color_4">#990000</color>
+    <color name="app_color_4">#E40717</color>
 
     <!-- Base -->
     <color name="black">#000000</color>
@@ -23,18 +23,18 @@
     <color name="trn_whiter">#55ffffff</color>
 
     <!-- Player -->
-    <color name="player_background_color">#db2a0f</color>
-    <color name="player_color_1">#ff6656</color>
-    <color name="player_color_2">#990000</color>
-    <color name="player_progress_color">#ff7566</color>
+    <color name="player_background_color">#E40717</color>
+    <color name="player_color_1">#FA3803</color>
+    <color name="player_color_2">#E40717</color>
+    <color name="player_progress_color">#FA3803</color>
 
     <!-- EPG -->
     <color name="epg_background">#00000000</color>
     <color name="epg_channel_layout_background">#80000000</color>
     <color name="epg_event_layout_background">#80000000</color>
-    <color name="epg_event_layout_background_selected">#50990000</color>
+    <color name="epg_event_layout_background_selected">#50E40717</color>
     <color name="epg_event_layout_text">#ffffff</color>
-    <color name="epg_subtitle">#990000</color>
+    <color name="epg_subtitle">#E40717</color>
     <color name="epg_time_bar">#fff000</color>
 
     <!-- Live -->
@@ -43,8 +43,8 @@
     <!-- Material / System -->
     <color name="colorPrimary">#000000</color>
     <color name="colorPrimaryDark">#1b1b1b</color>
-    <color name="colorAccent">#990000</color>
-    <color name="sub_action">#bb0000</color>
+    <color name="colorAccent">#E40717</color>
+    <color name="sub_action">#E40717</color>
 
     <!-- Cards -->
     <color name="new_selected_background_color">#66ffffff</color>

@@ -138,9 +138,9 @@
                 <Button
                     android:id="@+id/btn_login"
                     android:textSize="@dimen/font_16"
-                    android:textColor="@color/black"
+                    android:textColor="@drawable/selector_login_button_text"
                     android:textStyle="bold"
-                    android:background="@drawable/shape_feat_button"
+                    android:background="@drawable/selector_login_button"
                     android:layout_width="match_parent"
                     android:layout_height="@dimen/_36sdp"
                     android:text="@string/login"
@@ -170,7 +170,7 @@
     <TextView
         android:id="@+id/tv_version"
         android:textSize="@dimen/font_12"
-        android:textColor="@color/darkGray"
+        android:textColor="@color/white"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
