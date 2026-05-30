@@ -191,7 +191,11 @@ class PlayerActivity : AppCompatActivity() {
     override fun onKeyDown(keyCode: Int, event: android.view.KeyEvent?): Boolean {
         if (keyCode == android.view.KeyEvent.KEYCODE_BACK ||
             keyCode == android.view.KeyEvent.KEYCODE_ESCAPE) {
-            finish()
+            if (binding.playerView.isControllerFullyVisible) {
+                binding.playerView.hideController()
+            } else {
+                finish()
+            }
             return true
         }
         if (!binding.playerView.isControllerFullyVisible) {
