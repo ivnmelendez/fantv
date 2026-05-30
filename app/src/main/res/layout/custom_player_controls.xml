@@ -14,6 +14,8 @@
         android:id="@id/exo_progress"
         android:layout_width="match_parent"
         android:layout_height="@dimen/_20sdp"
+        android:focusable="true"
+        android:background="@drawable/selector_seekbar_focus"
         app:played_color="@color/app_color_4"
         app:scrubber_color="@color/app_color_4"
         app:buffered_color="#80FFFFFF"

@@ -13,6 +13,7 @@ import androidx.media3.common.Player
 import androidx.media3.common.TrackSelectionOverride
 import androidx.media3.common.Tracks
 import androidx.media3.exoplayer.ExoPlayer
+import androidx.media3.ui.DefaultTimeBar
 import com.primetv.app.App
 import com.primetv.app.R
 import com.primetv.app.data.db.entity.WatchHistoryEntity
@@ -68,6 +69,8 @@ class PlayerActivity : AppCompatActivity() {
             if (isLive) {
                 binding.playerView.useController = false
             } else {
+                binding.playerView.findViewById<DefaultTimeBar>(R.id.exo_progress)
+                    ?.setKeyTimeIncrement(10_000)
                 btnSubtitle = binding.playerView.findViewById(R.id.btn_subtitle)
                 btnAudio    = binding.playerView.findViewById(R.id.btn_audio)
                 btnSubtitle?.setOnClickListener { showTrackPicker(C.TRACK_TYPE_TEXT) }
