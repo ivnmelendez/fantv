@@ -320,9 +320,8 @@ class MainViewModel(private val repo: XtreamRepository) : ViewModel() {
                     if (sports.isNotEmpty()) add(ContentRow("home_sports", "Eventos Deportivos del día", sports.take(50), isRefreshable = true))
                 }
 
-                val featured = (latestMovies + latestSeries + sports)
-                    .filter { !it.streamIcon.isNullOrBlank() }
-                    .firstOrNull()
+                val featured = trendingMoviesRow.firstOrNull { !it.streamIcon.isNullOrBlank() }
+                    ?: (latestMovies + latestSeries).firstOrNull { !it.streamIcon.isNullOrBlank() }
 
                 _state.value = MainState.Success(featured, rows)
             } catch (e: Exception) {
@@ -384,9 +383,9 @@ class MainViewModel(private val repo: XtreamRepository) : ViewModel() {
                     if (items.isEmpty()) null else ContentRow(id, name, items)
                 }
 
-                val featured = allItems
-                    .filter { !it.streamIcon.isNullOrBlank() }
-                    .maxByOrNull { it.rating?.toDoubleOrNull() ?: 0.0 }
+                val featured = rows
+                    .firstOrNull { it.items.any { i -> !i.streamIcon.isNullOrBlank() } }
+                    ?.items?.firstOrNull { !it.streamIcon.isNullOrBlank() }
 
                 _state.value = MainState.Success(featured, rows)
             } catch (e: Exception) {
@@ -429,9 +428,9 @@ class MainViewModel(private val repo: XtreamRepository) : ViewModel() {
                         if (items.isEmpty()) null else ContentRow(id, name, items)
                     }
 
-                val featured = allItems
-                    .filter { !it.streamIcon.isNullOrBlank() }
-                    .maxByOrNull { it.rating?.toDoubleOrNull() ?: 0.0 }
+                val featured = rows
+                    .firstOrNull { it.items.any { i -> !i.streamIcon.isNullOrBlank() } }
+                    ?.items?.firstOrNull { !it.streamIcon.isNullOrBlank() }
 
                 _state.value = MainState.Success(featured, rows)
             } catch (e: Exception) {
