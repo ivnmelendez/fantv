@@ -40,6 +40,7 @@ class MainActivity : AppCompatActivity() {
         const val MENU_SEARCH   = 4
         const val MENU_FAVS     = 5
         const val MENU_SETTINGS = 6
+        const val MENU_LOGOUT   = 7
 
         const val EXTRA_STREAM_ID         = "stream_id"
         const val EXTRA_STREAM_URL        = "stream_url"
@@ -82,6 +83,7 @@ class MainActivity : AppCompatActivity() {
             MenuItem(MENU_SEARCH,   getString(R.string.nav_search),   R.drawable.ic_nav_search),
             MenuItem(MENU_FAVS,     getString(R.string.nav_favorites),R.drawable.ic_nav_favorite),
             MenuItem(MENU_SETTINGS, getString(R.string.nav_settings), R.drawable.ic_nav_settings),
+            MenuItem(MENU_LOGOUT,   getString(R.string.nav_logout),   R.drawable.ic_nav_logout),
         )
 
         menuAdapter = MenuAdapter(menuItems) { menuId ->
@@ -102,6 +104,24 @@ class MainActivity : AppCompatActivity() {
             MENU_SEARCH -> startActivity(Intent(this, com.primetv.app.ui.search.SearchActivity::class.java))
             MENU_FAVS -> startActivity(Intent(this, com.primetv.app.ui.favorites.FavoritesActivity::class.java))
             MENU_SETTINGS -> startActivity(Intent(this, com.primetv.app.ui.settings.SettingsActivity::class.java))
+            MENU_LOGOUT -> {
+                val dialog = android.app.AlertDialog.Builder(this)
+                    .setTitle(getString(R.string.nav_logout))
+                    .setMessage(getString(R.string.logout_confirm_message))
+                    .setPositiveButton(getString(R.string.logout_confirm_yes)) { _, _ ->
+                        prefs.clear()
+                        startActivity(Intent(this, com.primetv.app.ui.login.LoginActivity::class.java).apply {
+                            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+                        })
+                    }
+                    .setNegativeButton(getString(R.string.logout_confirm_no), null)
+                    .show()
+                dialog.getButton(android.app.AlertDialog.BUTTON_POSITIVE)?.setTextColor(android.graphics.Color.WHITE)
+                dialog.getButton(android.app.AlertDialog.BUTTON_NEGATIVE)?.apply {
+                    setTextColor(android.graphics.Color.WHITE)
+                    requestFocus()
+                }
+            }
         }
     }
 
