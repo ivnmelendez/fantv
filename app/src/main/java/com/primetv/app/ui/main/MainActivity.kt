@@ -1,11 +1,18 @@
 package com.primetv.app.ui.main
 
+import android.app.AlertDialog
 import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.primetv.app.update.APKInstaller
+import com.primetv.app.update.UpdateChecker
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
 import com.primetv.app.App
@@ -62,6 +69,24 @@ class MainActivity : AppCompatActivity() {
         setupMenu()
         observeState()
         loadMenu(prefs.activeMenuIndex.coerceIn(MENU_HOME, MENU_SERIES))
+        checkForUpdate()
+    }
+
+    private fun checkForUpdate() {
+        APKInstaller.cleanOldApks(this)
+        lifecycleScope.launch(Dispatchers.IO) {
+            val update = UpdateChecker.checkForUpdate() ?: return@launch
+            withContext(Dispatchers.Main) {
+                AlertDialog.Builder(this@MainActivity)
+                    .setTitle("Actualización disponible")
+                    .setMessage("Versión ${update.latestVersion} disponible. ¿Descargar ahora?")
+                    .setPositiveButton("Actualizar") { _, _ ->
+                        APKInstaller.download(this@MainActivity, update.apkUrl, update.latestVersion) {}
+                    }
+                    .setNegativeButton("Después", null)
+                    .show()
+            }
+        }
     }
 
     override fun onResume() {
