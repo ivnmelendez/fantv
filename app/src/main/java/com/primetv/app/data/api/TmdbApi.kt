@@ -40,7 +40,6 @@ data class TmdbCastMember(
 interface TmdbApi {
     @GET("search/movie")
     suspend fun searchMovie(
-        @Query("api_key") apiKey: String,
         @Query("query") query: String,
         @Query("language") language: String = "es-MX",
         @Query("year") year: String? = null
@@ -48,7 +47,6 @@ interface TmdbApi {
 
     @GET("search/tv")
     suspend fun searchTv(
-        @Query("api_key") apiKey: String,
         @Query("query") query: String,
         @Query("language") language: String = "es-MX",
         @Query("first_air_date_year") year: String? = null
@@ -56,21 +54,18 @@ interface TmdbApi {
 
     @GET("trending/movie/day")
     suspend fun trendingMovies(
-        @Query("api_key") apiKey: String,
         @Query("language") language: String = "es-MX",
         @Query("page") page: Int = 1
     ): TmdbSearchResponse
 
     @GET("trending/tv/day")
     suspend fun trendingTv(
-        @Query("api_key") apiKey: String,
         @Query("language") language: String = "es-MX",
         @Query("page") page: Int = 1
     ): TmdbSearchResponse
 
     @GET("movie/now_playing")
     suspend fun nowPlayingMovies(
-        @Query("api_key") apiKey: String,
         @Query("language") language: String = "es-MX",
         @Query("region") region: String = "MX",
         @Query("page") page: Int = 1
@@ -79,26 +74,22 @@ interface TmdbApi {
     @GET("movie/{id}")
     suspend fun getMovieDetails(
         @Path("id") id: Int,
-        @Query("api_key") apiKey: String,
         @Query("language") language: String = "es-MX"
     ): TmdbDetails
 
     @GET("tv/{id}")
     suspend fun getTvDetails(
         @Path("id") id: Int,
-        @Query("api_key") apiKey: String,
         @Query("language") language: String = "es-MX"
     ): TmdbDetails
 
     @GET("movie/{id}/credits")
     suspend fun getMovieCredits(
-        @Path("id") id: Int,
-        @Query("api_key") apiKey: String
+        @Path("id") id: Int
     ): TmdbCreditsResponse
 
     @GET("tv/{id}/credits")
     suspend fun getTvCredits(
-        @Path("id") id: Int,
-        @Query("api_key") apiKey: String
+        @Path("id") id: Int
     ): TmdbCreditsResponse
 }

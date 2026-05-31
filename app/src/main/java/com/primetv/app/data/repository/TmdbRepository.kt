@@ -23,8 +23,8 @@ import javax.net.ssl.X509TrustManager
 class TmdbRepository(private val dao: ContentDao) {
 
     companion object {
-        private const val API_KEY = "f010590c285895a245fc704377c7f398"
-        private const val BASE_URL = "https://api.themoviedb.org/3/"
+        private const val BASE_URL = "https://zqqjvtrrpcklvqnkymdj.supabase.co/functions/v1/tmdb/"
+        private const val SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpxcWp2dHJycGNrbHZxbmt5bWRqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODAyNDM0MjEsImV4cCI6MjA5NTgxOTQyMX0.iORFlI6rWrtHZdclF62vG_gdRoX5Y_d1z2ma7tTJ-gk"
         private const val CACHE_TTL_MS = 24L * 60 * 60 * 1000
         private const val SEARCH_CACHE_TTL_MS = 7L * 24 * 60 * 60 * 1000
         const val IMAGE_W1280 = "https://image.tmdb.org/t/p/w1280"
@@ -101,6 +101,12 @@ class TmdbRepository(private val dao: ContentDao) {
             .hostnameVerifier { _, _ -> true }
             .connectTimeout(10, TimeUnit.SECONDS)
             .readTimeout(10, TimeUnit.SECONDS)
+            .addInterceptor { chain ->
+                val req = chain.request().newBuilder()
+                    .addHeader("Authorization", "Bearer $SUPABASE_ANON_KEY")
+                    .build()
+                chain.proceed(req)
+            }
             .addInterceptor(HttpLoggingInterceptor().apply { level = HttpLoggingInterceptor.Level.BASIC })
             .build()
     }
@@ -144,13 +150,13 @@ class TmdbRepository(private val dao: ContentDao) {
         Log.d("TMDB", "search API: '$query' year=$year isSeries=$isSeries")
         return try {
             // Try with year first for precision; fallback without year
-            var result = if (isSeries) api.searchTv(API_KEY, query, year = year).results?.firstOrNull()
-                         else api.searchMovie(API_KEY, query, year = year).results?.firstOrNull()
+            var result = if (isSeries) api.searchTv(query, year = year).results?.firstOrNull()
+                         else api.searchMovie(query, year = year).results?.firstOrNull()
 
             if (result == null && year != null) {
                 Log.d("TMDB", "retry without year: '$query'")
-                result = if (isSeries) api.searchTv(API_KEY, query).results?.firstOrNull()
-                         else api.searchMovie(API_KEY, query).results?.firstOrNull()
+                result = if (isSeries) api.searchTv(query).results?.firstOrNull()
+                         else api.searchMovie(query).results?.firstOrNull()
             }
 
             Log.d("TMDB", "result: ${result?.title ?: result?.name} backdrop=${result?.backdropPath}")
@@ -168,13 +174,13 @@ class TmdbRepository(private val dao: ContentDao) {
         if (!path.isNullOrBlank()) "$IMAGE_W1280$path" else null
 
     suspend fun getRuntime(id: Int, isSeries: Boolean): String? = try {
-        val details = if (isSeries) api.getTvDetails(id, API_KEY) else api.getMovieDetails(id, API_KEY)
+        val details = if (isSeries) api.getTvDetails(id) else api.getMovieDetails(id)
         val minutes = if (isSeries) details.episodeRunTime?.firstOrNull() else details.runtime
         minutes?.let { "$it min" }
     } catch (e: Exception) { null }
 
     suspend fun getCast(id: Int, isSeries: Boolean): String? = try {
-        val credits = if (isSeries) api.getTvCredits(id, API_KEY) else api.getMovieCredits(id, API_KEY)
+        val credits = if (isSeries) api.getTvCredits(id) else api.getMovieCredits(id)
         credits.cast?.sortedBy { it.order }?.take(3)?.mapNotNull { it.name }?.joinToString(", ")
     } catch (e: Exception) { null }
 
@@ -187,24 +193,24 @@ class TmdbRepository(private val dao: ContentDao) {
 
     suspend fun fetchTrendingMovies(): List<TmdbResult> = cachedFetch("trending_movies") {
         coroutineScope {
-            val p1 = async { runCatching { api.trendingMovies(API_KEY, page = 1).results ?: emptyList() }.getOrElse { emptyList() } }
-            val p2 = async { runCatching { api.trendingMovies(API_KEY, page = 2).results ?: emptyList() }.getOrElse { emptyList() } }
+            val p1 = async { runCatching { api.trendingMovies(page = 1).results ?: emptyList() }.getOrElse { emptyList() } }
+            val p2 = async { runCatching { api.trendingMovies(page = 2).results ?: emptyList() }.getOrElse { emptyList() } }
             (p1.await() + p2.await()).distinctBy { it.id }
         }
     }
 
     suspend fun fetchTrendingTv(): List<TmdbResult> = cachedFetch("trending_tv") {
         coroutineScope {
-            val p1 = async { runCatching { api.trendingTv(API_KEY, page = 1).results ?: emptyList() }.getOrElse { emptyList() } }
-            val p2 = async { runCatching { api.trendingTv(API_KEY, page = 2).results ?: emptyList() }.getOrElse { emptyList() } }
+            val p1 = async { runCatching { api.trendingTv(page = 1).results ?: emptyList() }.getOrElse { emptyList() } }
+            val p2 = async { runCatching { api.trendingTv(page = 2).results ?: emptyList() }.getOrElse { emptyList() } }
             (p1.await() + p2.await()).distinctBy { it.id }
         }
     }
 
     suspend fun fetchNowPlayingMovies(): List<TmdbResult> = cachedFetch("now_playing_movies") {
         coroutineScope {
-            val p1 = async { runCatching { api.nowPlayingMovies(API_KEY, page = 1).results ?: emptyList() }.getOrElse { emptyList() } }
-            val p2 = async { runCatching { api.nowPlayingMovies(API_KEY, page = 2).results ?: emptyList() }.getOrElse { emptyList() } }
+            val p1 = async { runCatching { api.nowPlayingMovies(page = 1).results ?: emptyList() }.getOrElse { emptyList() } }
+            val p2 = async { runCatching { api.nowPlayingMovies(page = 2).results ?: emptyList() }.getOrElse { emptyList() } }
             (p1.await() + p2.await()).distinctBy { it.id }
         }
     }
