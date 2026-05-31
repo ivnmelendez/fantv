@@ -19,7 +19,7 @@ class App : Application() {
         instance = this
         prefs = Prefs(this)
         db = AppDatabase.get(this)
-        tmdb = TmdbRepository(db.contentDao())
+        tmdb = TmdbRepository()
     }
 
     companion object {

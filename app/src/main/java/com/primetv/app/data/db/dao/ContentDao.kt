@@ -115,16 +115,6 @@ interface ContentDao {
     @Query("DELETE FROM watch_history WHERE seriesId = :seriesId")
     suspend fun deleteWatchHistoryBySeriesId(seriesId: String)
 
-    // TMDB cache
-    @Query("SELECT * FROM tmdb_cache WHERE key = :key LIMIT 1")
-    suspend fun getTmdbCache(key: String): TmdbCacheEntity?
-
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun upsertTmdbCache(entity: TmdbCacheEntity)
-
-    @Query("DELETE FROM tmdb_cache WHERE cachedAt < :cutoff")
-    suspend fun deleteTmdbCacheOlderThan(cutoff: Long)
-
     // Favorites
     @Query("SELECT * FROM favorites ORDER BY addedAt DESC")
     suspend fun getFavorites(): List<FavoriteEntity>
