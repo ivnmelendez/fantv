@@ -34,11 +34,11 @@ jobs:
           KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
 
       - name: Rename APK
-        run: mv app/release/app-release.apk app/release/fantv-${{ github.ref_name }}.apk
+        run: mv app/build/outputs/apk/release/app-release.apk app/build/outputs/apk/release/fantv-${{ github.ref_name }}.apk
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
-          files: app/release/fantv-${{ github.ref_name }}.apk
+          files: app/build/outputs/apk/release/fantv-${{ github.ref_name }}.apk
           generate_release_notes: false
           name: FanTV ${{ github.ref_name }}
