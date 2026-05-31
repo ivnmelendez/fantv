@@ -83,6 +83,9 @@ dependencies {
     implementation "androidx.room:room-ktx:$room"
     ksp "androidx.room:room-compiler:$room"
 
+    // Encrypted SharedPreferences
+    implementation 'androidx.security:security-crypto:1.1.0-alpha06'
+
     // Core
     implementation 'androidx.core:core-ktx:1.12.0'
     implementation 'androidx.appcompat:appcompat:1.6.1'
