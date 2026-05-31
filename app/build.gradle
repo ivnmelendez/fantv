@@ -27,8 +27,18 @@ android {
         buildConfig true
     }
 
+    signingConfigs {
+        release {
+            storeFile file(System.getenv('KEYSTORE_PATH') ?: localProperties['KEYSTORE_PATH'] ?: '')
+            storePassword System.getenv('KEYSTORE_PASSWORD') ?: localProperties['KEYSTORE_PASSWORD'] ?: ''
+            keyAlias System.getenv('KEY_ALIAS') ?: localProperties['KEY_ALIAS'] ?: ''
+            keyPassword System.getenv('KEY_PASSWORD') ?: localProperties['KEY_PASSWORD'] ?: ''
+        }
+    }
+
     buildTypes {
         release {
+            signingConfig signingConfigs.release
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
